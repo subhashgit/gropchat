@@ -9,21 +9,29 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { ColorSchemeName, Pressable } from 'react-native';
-
+import * as SecureStore from 'expo-secure-store';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import ModalScreen from '../screens/ModalScreen';
-import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import DashboardScreen from '../screens/DashboardScreen';
+import ChatScreen from '../screens/ChatScreen';
+import GroupsChat from '../screens/GroupsChat';
+import CreatePost from '../screens/CreatePost';
+import MyPosts from '../screens/MyPosts';
+
+
+
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
-
+import AuthContext from '../screens/helpers/AuthContext';
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
-      linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      linking={LinkingConfiguration}>
       <RootNavigator />
     </NavigationContainer>
   );
@@ -36,16 +44,132 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+  
+  const [state, dispatch] = React.useReducer(
+    (prevState, action) => {
+      switch (action.type) {
+        case 'RESTORE_TOKEN':
+          return {
+            ...prevState,
+            userToken: action.token,
+            isLoading: false,
+          };
+        case 'SIGN_IN':
+          return {
+            ...prevState,
+            isSignout: false,
+            userToken: action.token,
+          };
+        case 'SIGN_OUT':
+          return {
+            ...prevState,
+            isSignout: true,
+            userToken: null,
+          };
+      }
+    },
+    {
+      isLoading: true,
+      isSignout: false,
+      userToken: null,
+    }
+  );
+
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let userToken;
+
+      try {
+       
+        // Restore token stored in `SecureStore` or any other encrypted storage
+         //userToken = await SecureStore.getItemAsync('token');
+      } catch (e) {
+        // Restoring token failed
+      }
+
+      // After restoring token, we may need to validate it in production apps
+
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
+      dispatch({ type: 'RESTORE_TOKEN', token: userToken });
+    };
+
+    bootstrapAsync();
+  }, []);
+
+  const authContext = React.useMemo(
+    () => ({
+      signIn: async (data) => {
+        // In a production app, we need to send some data (usually username, password) to server and get a token
+        // We will also need to handle errors if sign in failed
+        // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
+        // In the example, we'll use a dummy token
+        
+
+
+          fetch('https://naturetour.in/apps/smartchatpro/signin.php',
+          {
+              method: 'POST',
+              headers: new Headers({
+                   'Content-Type': 'application/x-www-form-urlencoded', // <-- Specifying the Content-Type
+          }),
+              body: JSON.stringify({ email:data.email })
+          })
+            .then((response) => response.json())
+             .then((response) => {
+              SecureStore.setItemAsync('token', response.message );
+             SecureStore.setItemAsync('email', data.email);
+            })
+            .catch((error) => console.error(error))
+            .finally(() => setLoading(false));
+          
+
+
+        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
+      },
+      signOut: async() =>{ 
+        
+        SecureStore.deleteItemAsync('token');
+        SecureStore.deleteItemAsync('email');
+        SecureStore.deleteItemAsync('username');
+        dispatch({ type: 'SIGN_OUT' });
+    },
+
+
+      signUp: async (data) => {
+        // In a production app, we need to send user data to server and get a token
+        // We will also need to handle errors if sign up failed
+        // After getting token, we need to persist the token using `SecureStore` or any other encrypted storage
+        // In the example, we'll use a dummy token
+        dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
+      },
+    }),
+    []
+  );
+
+
+
   return (
+    <AuthContext.Provider value={authContext}>
     <Stack.Navigator>
-      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-      <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
-      </Stack.Group>
+    {state.userToken == null ? (
+      <Stack.Screen name="Root" component={WelcomeScreen}    options={{ headerShown: false }} />
+      ) : (
+      <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }}/>
+      )}    
+      <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
+       <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }}/>
+      <Stack.Screen name="ChatScreen" component={ChatScreen}  options={({ route }) => ({ title: route.params.groupname })}/>
+     
     </Stack.Navigator>
+    </AuthContext.Provider>
   );
 }
+
+
+
 
 /**
  * A bottom tab navigator displays tab buttons on the bottom of the display to switch screens.
@@ -58,41 +182,50 @@ function BottomTabNavigator() {
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
+      initialRouteName="DashboardScreen"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme].tint,
       }}>
+     
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneScreen}
-        options={({ navigation }: RootTabScreenProps<'TabOne'>) => ({
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
-        })}
-      />
-      <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoScreen}
+        name="DashboardScreen"
+        component={DashboardScreen}
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerShown: false,
+          title: 'Home',
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />
         }}
       />
+     <BottomTab.Screen
+        name="Groups Chat"
+        component={GroupsChat}
+        options={{
+          headerShown: false,
+          title: 'Chat Groups',
+          tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} />
+        }}
+      />
+       <BottomTab.Screen
+        name="CreatePost"
+        component={CreatePost}
+        options={{
+          headerShown: false,
+          title: 'New Post',
+          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />
+        }}
+      />
+        <BottomTab.Screen
+        name="MyPosts"
+        component={MyPosts}
+        options={{
+          headerShown: false,
+          title: 'My Post',
+          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />
+        }}
+      />
+
     </BottomTab.Navigator>
+    
   );
 }
 

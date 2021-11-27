@@ -1,0 +1,12 @@
+android {
+
+    defaultConfig {
+
+        versionCode 2
+        versionName "2.0.0"
+
+        {...}
+    }
+
+    {...}
+}
