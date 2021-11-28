@@ -39,8 +39,12 @@ const [email, setemail] = useState('');
     setusername(username);
   } 
   getValueFor();
-
+const onpressprofile = () =>{
+  navigation.navigate('ProfileScreen');
+//  alert();
+}
   return (
+
     <>
       <View style={styles.centeredView}>
         <Modal animationType="slide" transparent={true} visible={modalVisible}>
@@ -59,13 +63,10 @@ const [email, setemail] = useState('');
                 <Ionicons style={styles.closeic} name={"ios-close"} size={60} />
               </TouchableHighlight>
               <View style={styles.listnavwrapper}>
-                <TouchableOpacity style={styles.listnav}>
-                 <MaterialCommunityIcons name="hand-left"  style={styles.navicon} size={30} />
-                  <Text style={styles.navicontxt}>Services</Text>
-                </TouchableOpacity>
+                
 
             
-                <TouchableOpacity style={styles.listnav} >
+                <TouchableOpacity style={styles.listnav} onPress={onpressprofile} >
                   <FontAwesome
                     style={styles.navicon}
                     name="user-circle"
@@ -83,8 +84,8 @@ const [email, setemail] = useState('');
                     size={30}
                   />
                   <Text style={styles.navicontxt}>
-                    Billing {"\n"}
-                    <Text style={styles.naviconsubtxt}>Your profile </Text>{" "}
+                    Feedback {"\n"}
+                    <Text style={styles.naviconsubtxt}>Suggetions </Text>{" "}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={signOut} style={styles.listnav}>

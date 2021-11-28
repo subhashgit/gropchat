@@ -1,74 +1,18 @@
 import React, {useEffect, useState, useContext } from "react";
-import { StyleSheet, Button,RefreshControl,Image, View,Dimensions,Linking,Alert,PermissionsAndroid, Text,TextInput, ImageBackground,Clipboard, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Button,RefreshControl,Share, View,Dimensions,Linking,Alert,PermissionsAndroid, Text,TextInput, ImageBackground,Clipboard, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
-import Drawer from "./component/drawer";
 import Header from "./component/header";
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing'; 
 
-
+import Image from 'react-native-scalable-image';
 export default  function DashboardScreen({ navigation }) {
  
 
-
-  async function hasAndroidPermission() {
-    const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-  
-    const hasPermission = await PermissionsAndroid.check(permission);
-    if (hasPermission) {
-      return true;
-    }
-  
-    const status = await PermissionsAndroid.request(permission);
-    return status === 'granted';
-  }
-  
-const  requestCameraPermission = async (photo: string) => {
- 
-    if (Platform.OS === "android" && !(await hasAndroidPermission())) {
-      return;
-    }
-  
-//    CameraRoll.save(tag, { type, album })
-var uri = 'https://naturetour.in/apps/smartchatpro/upload/677436693_1637874716.jpg';
-
-const localuri = await FileSystem.downloadAsync(uri, FileSystem.documentDirectory + '123677436693_1637874716.jpg')
-const asset = await MediaLibrary.createAssetAsync(photo);
- await MediaLibrary.createAlbumAsync("Down", asset);
-
-
-  };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
 
   const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -82,8 +26,7 @@ const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
 
 
 
-
-const [state, setState] = useState(1);
+const [state, setState] = useState();
 const [loading, setLoading] = useState(true);
 const [dataSource, setDataSource] = useState([]);
 const [offset, setOffset] = useState(1);
@@ -106,6 +49,8 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
   .then((response) => response.json())
   .then((responseJson) => {
     //Successful response
+  
+    if(responseJson.message === false){return;}
     setOffset(offset + 1);
     //Increasing the offset for the next API call
     setDataSource([...dataSource, ...responseJson.message]);
@@ -115,8 +60,12 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
     console.error(error);
   });
 };
-
-
+const sharetext = '';
+const onShare = async (sharetext) => {
+    const result = await Share.share({
+      message: sharetext,
+    });
+};
 
  const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -151,18 +100,42 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
             <Text  style={{color:'#000'}}>{item.username}</Text>
           </View>
           {item.url ?  <View>
-            <Image source={{  uri: item.url,}}  style={{ width: width ,aspectRatio: 1,}}  resizeMode={'cover'} /> 
+            <Image source={{  uri: item.url,}}  width={width}  /> 
             <View style={styles.underpostfooter}>
             {item.postmessage ? <Text style={{ fontSize: 15, fontWeight:'900' }}>{item.postmessage}</Text>: null}
               <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
-                  <FontAwesome
-                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 5, flexDirection: "row" }}
-                      name="whatsapp"
-                    />
-                    <TouchableOpacity activeOpacity={0.7}    onPress={ requestCameraPermission} >
-                    <AntDesign
-                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
-                      name="download"
+                
+                    <TouchableOpacity activeOpacity={0.7} 
+                    style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                    onPress={() => {
+            const options = {
+              mimeType: 'image/jpeg',
+              dialogTitle: 'Share the image',
+              UTI: 'image/jpeg',
+            };
+  
+            FileSystem.downloadAsync(item.url, FileSystem.cacheDirectory + item.image)
+              .then(({ uri }) => {
+                setState(`Downloaded image to ${uri}`);
+              })
+              .catch((err) => {
+                setState('Error downloading image');
+                console.log(JSON.stringify(err));
+              });
+  
+            // Sharing only allows one to share a file.
+            Sharing.shareAsync( FileSystem.cacheDirectory + item.image, options)
+              .then((data) => {
+                setState('Shared');
+              })
+              .catch((err) => {
+                setState('Error sharing image');
+                console.log(JSON.stringify(err));
+              });
+          }}>
+                    <FontAwesome
+                      style={{ fontSize: 22, paddingTop: 5, paddingRight: 15, flexDirection: "row" }}
+                      name="send-o"
                     />
                     </TouchableOpacity>
                 </View>
@@ -173,11 +146,11 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
                         <View style={styles.underpostfooter}>
                               <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
                                   
-                              <TouchableOpacity activeOpacity={0.7}    onPress={()=> Linking.openURL('whatsapp://send?text='+item.postmessage)}>
-            <FontAwesome
-                                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 5, flexDirection: "row" }}
-                                      name="whatsapp"
-                                    />
+                              <TouchableOpacity activeOpacity={0.7}     onPress={() => {onShare(item.postmessage)}}>
+                              <FontAwesome
+                                    style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                                    name="send-o"
+                                  />
                                     </TouchableOpacity>
                                     <TouchableOpacity    activeOpacity={0.1}  
                       onPress={() => Clipboard.setString(item.postmessage) }>
@@ -208,16 +181,11 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
 <View style={styles.outer}>
         
     <Header/>
-    <Drawer
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        navigation={navigation}
-                              
-      />
 </View>
       <View style={styles.screen}>
             <View  style={styles.categorieslisting}>     
           <ScrollView 
+          style={{marginBottom:160}}
            refreshControl={
             <RefreshControl
               refreshing={refreshing}

@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { FontAwesome } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -23,6 +23,7 @@ import GroupsChat from '../screens/GroupsChat';
 import CreatePost from '../screens/CreatePost';
 import MyPosts from '../screens/MyPosts';
 
+import ProfileScreen from '../screens/ProfileScreen';
 
 
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
@@ -162,7 +163,8 @@ function RootNavigator() {
        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ChatScreen" component={ChatScreen}  options={({ route }) => ({ title: route.params.groupname })}/>
-     
+      
+      
     </Stack.Navigator>
     </AuthContext.Provider>
   );
@@ -202,7 +204,7 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'Chat Groups',
-          tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} />
+          tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
         }}
       />
        <BottomTab.Screen
@@ -211,7 +213,7 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'New Post',
-          tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />
+          tabBarIcon: ({ color }) => <TabBarIcon name="pluscircleo" color={color} />
         }}
       />
         <BottomTab.Screen
@@ -220,7 +222,16 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'My Post',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />
+          tabBarIcon: ({ color }) => <TabBarIcon name="picture" color={color} />
+        }}
+      />
+      <BottomTab.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+          title: 'My Account',
+          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />
         }}
       />
 
@@ -233,8 +244,8 @@ function BottomTabNavigator() {
  * You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
  */
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
+  name: React.ComponentProps<typeof AntDesign>['name'];
   color: string;
 }) {
-  return <FontAwesome size={30} style={{ marginBottom: -3 }} {...props} />;
+  return <AntDesign size={30} style={{ marginBottom: -3 }} {...props} />;
 }

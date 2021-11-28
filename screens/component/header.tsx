@@ -3,7 +3,6 @@ import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground, Touch
 import AuthContext from '../helpers/AuthContext'
 import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
-import Drawer from "./drawer";
 export default  function Header({ navigation }) {
 
 const [getfirstnamel, setgetfirstnamel] = useState('');
@@ -32,23 +31,24 @@ const [modalVisible, setModalVisible] = useState(false);
   return (
       <View style={styles.containerwrapper}>
       <View style={styles.headicons}>
-      <TouchableOpacity
-              onPress={() => {
-                setModalVisible(true);
-              }}
-            >
+      <Image source={require('../img/logowhite.png')}
+  style={styles.imglogo}
+/>
+           
      <Text style={styles.userfletter}>{getfirstnamel}</Text>
-            </TouchableOpacity>
-            <FontAwesome name='bell-o' color={'#fff'} size={18}/>
-</View>
-    <Drawer
+           
+
+ </View>
+  {/* 
+ <Drawer
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
         navigation={navigation}
                               
       />
+   */}
       </View>
-   
+ 
   
   );
 }
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   image: { flex: 1,
   },
-  imglogo:{width:120,height:120,},
+  imglogo:{width:120,height:21,},
   listoption:{backgroundColor:'#fff',minWidth:'100%',marginVertical:5,paddingVertical:10,paddingHorizontal:20, flex:1,
   flexDirection:'row',
   alignItems:'center',

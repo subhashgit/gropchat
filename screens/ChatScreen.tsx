@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useContext, useRef } from "react";
-import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground,Dimensions, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Button, View, Text, Image,TextInput,RefreshControl, ImageBackground,Dimensions, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
 import { FontAwesome } from "@expo/vector-icons";
@@ -33,6 +33,12 @@ async function getValueFor(key) {
   } 
 }
 getValueFor('email');
+
+
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+
 
 const [username, setusername] = useState('');
 async function getValueF(key) {
@@ -91,13 +97,31 @@ fetch('https://naturetour.in/apps/smartchatpro/sendmessage.php',
 
 }
 
+
+const [refreshing, setRefreshing] = React.useState(false);
+
+const [offset, setOffset] = useState(1);
+const onRefresh = React.useCallback(() => {
+
+   setRefreshing(true);
+
+
+
+  wait(2000).then(() => setRefreshing(false));
+}, []);
+
   return (
     
-    <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
+    <View style={styles.image}>
     <View style={styles.container}>
     <ScrollView showsHorizontalScrollIndicator={false} style={{marginTop:0,marginBottom:0 }}
      ref={scrollViewRef}
      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}
+     refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />}
     >   
     
           <View style={styles.screen}>
@@ -139,7 +163,7 @@ fetch('https://naturetour.in/apps/smartchatpro/sendmessage.php',
                   </View>
      </View>
 
-    </ImageBackground>
+    </View>
   
   );
 }

@@ -1,40 +1,260 @@
 import React, {useEffect, useState, useContext } from "react";
-import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Button,RefreshControl,Share, View,Dimensions,Linking,Alert,PermissionsAndroid, Text,TextInput, ImageBackground,Clipboard, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Drawer from "./component/drawer";
 import Header from "./component/header";
-export default  function CreatePost({ navigation }) {
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Sharing from 'expo-sharing'; 
+import Image from 'react-native-scalable-image';
 
-  const [isLoading, setLoading] = useState(true);
-const [data, setData] = useState([]);
-
-async function getValueFor(key) {
-  let result = await SecureStore.getItemAsync(key);
+export default  function DashboardScreen({ navigation }) {
   
-  if (result) {
-         setemail(result);
-  } 
-}
-getValueFor('email');
 
-useEffect(() => {
-  fetch('https://naturetour.in/apps/smartchatpro/groups.php')
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+  var width = Dimensions.get('window').width; 
+
+const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+  const paddingToBottom = 20;
+  return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+};
+
+const [state, setState] = useState();
+
+const [loading, setLoading] = useState(true);
+const [dataSource, setDataSource] = useState([]);
+const [offset, setOffset] = useState(1);
+const [data, setData] = useState([]);
+const [useremail, setuseremail] = useState('');
+
+
+
+useEffect(() => getData(), []);
+
+const getData = async ()=> {
+  let useremail = await SecureStore.getItemAsync('email');
+  setuseremail(useremail);
+  setLoading(true);
+  fetch('https://naturetour.in/apps/smartchatpro/myposts.php?page='+ offset,
+  
+  {
+    method: 'POST',
+    body: JSON.stringify({ email: useremail }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+  },
+   
+  })
+  
+    //Sending the currect offset with get request
     .then((response) => response.json())
-    //.then((response) => {console.log(response.message)})
-    .then((json) => setData(json.message))
-    .catch((error) => console.error(error))
-    .finally(() => setLoading(false));
-}, []);
+    .then((responseJson) => {
+      //Successful response
+    
+      if(responseJson.message === false){return;}
+      setOffset(offset + 1);
+      //Increasing the offset for the next API call
+      setDataSource([...dataSource, ...responseJson.message]);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error(error);
+    }); 
+};
 
-  const [modalVisible, setModalVisible] = useState(false);
+
+const deletepost = async (key) => {
+ 
+  Alert.alert(
+    "You realy want to delete post",
+    "Confirm",
+    [
+      {
+        text: "Cancel",
+        onPress: () => {return},
+        style: "cancel"
+      },
+      { text: "Yes", style: "Yes", onPress: () =>   deletepostconfirm(key) 
+    
+    
+    }
+    ]
+  );
+}
+const deletepostconfirm = async (key) => {
+  let useremail = await SecureStore.getItemAsync('email');
+  setLoading(true);
+  fetch('https://naturetour.in/apps/smartchatpro/deletepost.php',
+  {
+    method: 'POST',
+    body: JSON.stringify({ email: useremail, postid:key }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+  },
+   
+  })
+  
+    //Sending the currect offset with get request
+    .then((response) => response.json())
+    .then((responseJson) => {
+      //Successful response
+    
+      if(responseJson.message === true){
+       alert('deleted');
+
+      }
+      else{alert(responseJson.message)}
+      setOffset(offset + 1);
+      //Increasing the offset for the next API call
+      setDataSource([...dataSource, ...responseJson.message]);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error(error);
+    }); 
+};
+
+
+ const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+
+     setRefreshing(true);
+     getData();
+    wait(2000).then(() => setRefreshing(false));
+  }, []);
+
+  const sharetext = '';
+  const onShare = async (sharetext) => {
+      const result = await Share.share({
+        message: sharetext,
+      });
+  };
+  const renderFooter = () => {
+    return (
+      //Footer View with Load More button
+      <View style={styles.footer}>
+       
+          {loading ? (
+            <ActivityIndicator
+              color="black"
+              style={{marginLeft: 8}} />
+          ) : null}
+       
+      </View>
+    );
+  };
+ const ItemView = ({item}) => {
+    return (
+       <View  style={styles.postlist}>
+          <View style={styles.namedes}>
+          <Text style={styles.icouser}>{item.username.charAt(0)}</Text>
+            <Text  style={{color:'#000'}}>{item.username}</Text>
+          </View>
+          {item.url ?  <View style={styles.itemv+item.id}>
+            <Image source={{  uri: item.url,}}  width={width}  /> 
+            <View style={styles.underpostfooter}>
+            {item.postmessage ? <Text style={{ fontSize: 15, fontWeight:'900' }}>{item.postmessage}</Text>: null}
+              <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
+                  
+                    <TouchableOpacity activeOpacity={0.7} 
+                    
+          onPress={() => {
+            const options = {
+              mimeType: 'image/jpeg',
+              dialogTitle: 'Share the image',
+              UTI: 'image/jpeg',
+            };
+  
+            FileSystem.downloadAsync(item.url, FileSystem.cacheDirectory + item.image)
+              .then(({ uri }) => {
+                setState(`Downloaded image to ${uri}`);
+              })
+              .catch((err) => {
+                setState('Error downloading image');
+                console.log(JSON.stringify(err));
+              });
+  
+            // Sharing only allows one to share a file.
+            Sharing.shareAsync( FileSystem.cacheDirectory + item.image, options)
+              .then((data) => {
+                setState('Shared');
+              })
+              .catch((err) => {
+                setState('Error sharing image');
+                console.log(JSON.stringify(err));
+              });
+          }}
+     >
+                     <FontAwesome
+                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                      name="send-o"
+                    />
+                    </TouchableOpacity>
+                     <TouchableOpacity    activeOpacity={0.1}  
+                      onPress={() => deletepost(item.id)}>
+                                    <FontAwesome
+                                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                                      name="trash-o"
+                                    />
+                    </TouchableOpacity>
+                </View>
+                </View>
+          </View> : 
+             <View style={[styles.viewsinglepost,  styles.itemv+item.id]}>
+                        <Text style={styles.postmessagesingle}>{item.postmessage}</Text>
+                        <View style={styles.underpostfooter}>
+                              <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
+                                  
+                              <TouchableOpacity activeOpacity={0.7}       onPress={() => {onShare(item.postmessage)}}>
+                              <FontAwesome
+                                    style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                                    name="send-o"
+                                  />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity    activeOpacity={0.1}  
+                      onPress={() => Clipboard.setString(item.postmessage) }>
+                                    <FontAwesome
+                                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                                      name="copy"
+                                    />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity    activeOpacity={0.1}  
+                      onPress={() => deletepost(item.id)}>
+                                    <FontAwesome
+                                      style={{ fontSize: 22, paddingTop: 5, paddingLeft: 8, flexDirection: "row" }}
+                                      name="trash-o"
+                                    />
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+              
+              <View>
+                   
+                  </View>
+
+                </View>
+                 }
+                
+              </View>
+     
+    );
+  };
 
   return (
-  
-    <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
-    
+ 
+    <View>
+
+<View style={styles.outer}>
+        
     <Header/>
     <Drawer
         modalVisible={modalVisible}
@@ -42,52 +262,59 @@ useEffect(() => {
         navigation={navigation}
                               
       />
-      
-    <View style={styles.container}>
-    
-    <SafeAreaView style={{marginTop:0,marginBottom:0 }}>   
-   
-          <View style={styles.screen}>
-    {isLoading ? <ActivityIndicator/> : (
-                <FlatList
-                  data={data}
-                  
-                  keyExtractor={({ id }, index) => id}
-                  renderItem={({ item }) => (
-
-           
-               <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('ChatScreen',{
-            groupid: item.id,
-            groupname: item.groupname
-          })}>
-               
-              <View  style={styles.listoption}>
-              <FontAwesome
-            style={[styles.listimg, {fontSize: 30, paddingTop: 10 }]}
-            name={item.icon}
-          />
-              
-              <Text style={styles.listtxt}>{item.groupname}</Text>
-              
-            </View>
-            </TouchableOpacity>
-           
-            )}
-                />
-              )}
 </View>
+      <View style={styles.screen}>
+            <View  style={styles.categorieslisting}>     
+          <ScrollView 
+          style={{marginBottom:130}}
+           refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />}
+           showsHorizontalScrollIndicator={false} onScroll={({nativeEvent}) => {
+      if (isCloseToBottom(nativeEvent)) {
+        getData();
+      }
+    }}
+    scrollEventThrottle={400}
+    
+    >
+          <SafeAreaView>
+                <FlatList
+                 data={dataSource}
+          keyExtractor={(item, index) => index.toString()}
          
-         </SafeAreaView>
-     </View>
-     
-    </ImageBackground>
+          enableEmptySections={true}
+          renderItem={ItemView}
+          ListFooterComponent={renderFooter}
+
+             
+                />
+            </SafeAreaView>
+          </ScrollView>
+          
+        </View>
+
+
+          
   
+      </View>
+      <View></View>
+
+    </View>
+
+    
+
   );
+
+
+
 }
 
 const styles = StyleSheet.create({
   container: {
-   padding:15,
+   padding:0,
   },
   screen:{width:'100%',marginTop:0},
   
@@ -115,16 +342,29 @@ const styles = StyleSheet.create({
   image: { flex: 1,
   },
   imglogo:{width:120,height:120,},
-  listoption:{backgroundColor:'#fff',minWidth:'100%',marginVertical:5,paddingVertical:10,paddingHorizontal:20, flex:1,
-  flexDirection:'row',
-  alignItems:'center',
-  justifyContent:'flex-start'},
+  listoption:{backgroundColor:'#fff',minWidth:'100%',marginVertical:5, },
   listtxt:{marginLeft:10,},
   containerwrapper:{paddingTop:40,paddingBottom:10,backgroundColor:'#000',paddingHorizontal:25,},
   headicons:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
   userfletter:{color:'#fff',height:25,width:25,lineHeight:23,borderRadius:50,textAlign:'center',borderColor:'#fff',
 borderWidth:1,fontSize:12,
-}
+},
+postlist:{
+  backgroundColor: 'white',
+  borderRadius: 8,
+  paddingVertical: 5,
+  width: '100%',
+  marginVertical: 5,
+  shadowColor: '#171717',
+  shadowOffset: {width: -2, height: 4},
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
+},
+icouser:{backgroundColor:'#000',height:20,width:20,color:'#fff',textAlign:'center',lineHeight:20,
+borderRadius:20,marginRight:5,
+},
+namedes:{flexDirection:'row',alignItems:'center',justifyContent:"flex-start",marginBottom:5,paddingHorizontal:5,},
+viewsinglepost:{paddingHorizontal:15,},
+postmessagesingle:{fontSize:28,},
+underpostfooter:{paddingHorizontal:15,}
 });
-
-

@@ -13,7 +13,7 @@ export default function RegisterScreen({navigation}) {
   const [name, setName] = useState({ value: '', error: '' })
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
-  const [gander, setGander] = useState('Male')
+  const [gander, setGander] = useState('')
   
   const data = [
     {label: 'Male'     },     {      label: 'Female'     },     {      label: 'Other'     }

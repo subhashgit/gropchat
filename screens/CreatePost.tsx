@@ -6,6 +6,7 @@ import Drawer from "./component/drawer";
 import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Header from "./component/header";
+import Spinner from 'react-native-loading-spinner-overlay';
 export default function CreatePost(navigation) {
   const [image, setImage] = useState(null);
   const [type, settype] = useState(null);
@@ -14,7 +15,7 @@ export default function CreatePost(navigation) {
   const [description, setdescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
-  const [descriptiontxt, setdescriptiontxt] = useState('');
+  
   useEffect(() => {
     (async () => {
       if (Platform.OS !== 'web') {
@@ -42,17 +43,17 @@ console.log(resultt.base64);
   };
 
   const UploadImage = async () => {
-    
+    setLoading(true);
    const useremai = await SecureStore.getItemAsync('email');
    const username = await SecureStore.getItemAsync('username');
-    setLoading(true);
+
     
     fetch('https://naturetour.in/apps/smartchatpro/createpost.php',
     {
       
       
         method: 'POST',
-        body: JSON.stringify({ base:base, email: useremai, username:username, image:image,  posttype:posttype.label, postmessage:description  }),
+        body: JSON.stringify({ base:base, email: useremai, username:username, image:image,  postmessage:description  }),
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -63,6 +64,8 @@ console.log(resultt.base64);
       
       .then((response) => {
         setdescription('');
+        setImage('');
+        setbase('');
         alert(response.message);
       })  
       .catch((error) => console.error(error))
@@ -70,45 +73,17 @@ console.log(resultt.base64);
 
   }
 
-
-  const UploadText = async () => {
-    
-    const useremai = await SecureStore.getItemAsync('email');
-    const username = await SecureStore.getItemAsync('username');
-     setLoading(true);
-     
-     fetch('https://naturetour.in/apps/smartchatpro/createpost.php',
-     {
-       
-       
-         method: 'POST',
-         body: JSON.stringify({email: useremai, username:username,  posttype:posttype.label, postmessagetxt:descriptiontxt  }),
-         headers: {
-           'Accept': 'application/json',
-           'Content-Type': 'application/json',
-       },
-        
-     })
-       .then((response) => response.json())
-       
-       .then((response) => {
-        setdescription('');
-         alert(response.message);
-       })  
-       .catch((error) => console.error(error))
-       .finally(() => setLoading(false));
- 
-   }
-
-
-
-  
-  const [posttype, setposttype] = useState('Image')
-  
-  const data = [{label: 'Image'     },{label: 'Text'}];
   
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
+       <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={Loading}
+          //Text with the Spinner
+          textContent={'Loading...'}
+          //Text style of the Spinner Text
+          textStyle={styles.spinnerTextStyle}
+        />
       <Header/>
     <Drawer
         modalVisible={modalVisible}
@@ -116,28 +91,16 @@ console.log(resultt.base64);
         navigation={navigation}
                               
       />
-<RadioButtonRN
-  data={data}
-  animationTypes={['zoomIn']}
-					initial={1}
-  selectedBtn={(e) => setposttype(e)}
-  style={styles.radiostyle}  
-  textStyle={styles.radiotextwrapper}  
-  boxStyle={styles.radioboxStyle}  
-  circleSize={12}
-  
-  
-/>
-{posttype.label == 'Image' && 
+
     <View style={styles.container}>
    
       
       
-      {image &&       <ImageBackground source={{ uri: image }} resizeMode="contain"  style={{height:250,width:'100%'}}/>}
+      {image ?       <ImageBackground source={{ uri: image }} resizeMode="contain"  style={{height:250,width:'100%'}}/>:null}
       <TouchableOpacity onPress={pickImage} style={styles.buttonStyle}>
        <Text style={styles.btntxt}><FontAwesome
             size={25}
-            name='cloud-upload'/> Upload</Text>
+            name='cloud-upload'/> Upload Image</Text>
       </TouchableOpacity>
 
       <TextInput
@@ -155,28 +118,7 @@ console.log(resultt.base64);
                 <Text style={styles.btntxt}>Post</Text></TouchableOpacity>
      
     </View>
-   }
-{posttype.label == 'Text' && 
-    <View style={styles.container}>
    
-      
-      <TextInput
-        label="Description"
-        value={descriptiontxt}
-        onChangeText={(text) => setdescriptiontxt(text)}
-        autoCapitalize="none"
-        style={styles.textbox}
-        multiline={true}
-        numberOfLines={4}
-        placeholder="Description"
-        
-      />
-     
-     <TouchableOpacity onPress={UploadText} style={styles.buttonStyle}>
-                <Text style={styles.btntxt}>Post</Text></TouchableOpacity>
-    </View>
-   }
-
     </ImageBackground>
   );
 }

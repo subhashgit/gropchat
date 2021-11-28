@@ -34,7 +34,7 @@ useEffect(() => {
 
   return (
   
-    <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
+    <View style={styles.image}>
     
     <Header/>
     <Drawer
@@ -81,7 +81,7 @@ useEffect(() => {
          </SafeAreaView>
      </View>
      
-    </ImageBackground>
+    </View>
   
   );
 }
