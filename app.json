@@ -2,7 +2,7 @@
   "expo": {
     "name": "Chatroom",
     "slug": "Chatroom",
-    "version": "1.0.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -22,16 +22,15 @@
       "supportsTablet": true
     },
     "android": {
-      
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "config": {
-       
         "googleMobileAdsAppId": "ca-app-pub-3185366657620430/1873326666"
       },
-      "package": "com.subhashcool.gropchat"
+      "package": "com.subhashcool.Chatroom",
+       "versionCode":  1
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
