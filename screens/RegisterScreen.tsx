@@ -44,13 +44,11 @@ export default function RegisterScreen({navigation}) {
         .then((response) => response.json())
         .then((response) => {
           
-          if(response.message == 'true'){
-            alert(email.value);
+          if(response.status === true){
             signIn({email:email.value});
-          //signIn({email:email});
           navigation.navigate('Root' );
           }
-          else{
+          else  if(response.status === false){
             alert(response.message);
           }
           })  

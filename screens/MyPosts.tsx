@@ -32,6 +32,8 @@ const [offset, setOffset] = useState(1);
 const [data, setData] = useState([]);
 const [useremail, setuseremail] = useState('');
 
+const [textto, settextto] = useState('');
+
 
 
 useEffect(() => getData(), []);
@@ -56,12 +58,14 @@ const getData = async ()=> {
     .then((response) => response.json())
     .then((responseJson) => {
       //Successful response
-    
-      if(responseJson.message === false){return;}
+      if(responseJson.poststatus === false){setLoading(false); settextto(responseJson.message); return;}
+      else if(responseJson.Status === false){setLoading(false); settextto(''); return;}
       setOffset(offset + 1);
+      settextto(''); 
       //Increasing the offset for the next API call
       setDataSource([...dataSource, ...responseJson.message]);
       setLoading(false);
+    
     })
     .catch((error) => {
       console.error(error);
@@ -81,8 +85,6 @@ const deletepost = async (key) => {
         style: "cancel"
       },
       { text: "Yes", style: "Yes", onPress: () =>   deletepostconfirm(key) 
-    
-    
     }
     ]
   );
@@ -111,8 +113,7 @@ const deletepostconfirm = async (key) => {
 
       }
       else{alert(responseJson.message)}
-      setOffset(offset + 1);
-      //Increasing the offset for the next API call
+    
       setDataSource([...dataSource, ...responseJson.message]);
       setLoading(false);
     })
@@ -266,7 +267,7 @@ const deletepostconfirm = async (key) => {
       <View style={styles.screen}>
             <View  style={styles.categorieslisting}>     
           <ScrollView 
-          style={{marginBottom:130}}
+          style={{marginBottom:270,}}
            refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -291,6 +292,15 @@ const deletepostconfirm = async (key) => {
 
              
                 />
+
+               {textto ? <View><Text style={{textAlign:'center'}}>{textto}</Text>
+                <TouchableOpacity    activeOpacity={0.1}  
+                onPress={() => getData()}>
+                              <Text style={{textAlign:'center',color:'blue'}}>Refresh</Text>
+                              </TouchableOpacity></View>
+               :null}
+            
+            
             </SafeAreaView>
           </ScrollView>
           

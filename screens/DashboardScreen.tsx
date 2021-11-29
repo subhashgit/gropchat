@@ -10,6 +10,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing'; 
 
 import Image from 'react-native-scalable-image';
+
 export default  function DashboardScreen({ navigation }) {
  
 
@@ -50,7 +51,7 @@ fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
   .then((responseJson) => {
     //Successful response
   
-    if(responseJson.message === false){return;}
+    if(responseJson.message === false){setLoading(false); return;}
     setOffset(offset + 1);
     //Increasing the offset for the next API call
     setDataSource([...dataSource, ...responseJson.message]);
@@ -183,9 +184,10 @@ const onShare = async (sharetext) => {
     <Header/>
 </View>
       <View style={styles.screen}>
-            <View  style={styles.categorieslisting}>     
+            <View  style={styles.categorieslisting}>  
+         
           <ScrollView 
-          style={{marginBottom:160}}
+          style={{marginBottom:270}}
            refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -197,7 +199,6 @@ const onShare = async (sharetext) => {
       }
     }}
     scrollEventThrottle={400}
-    
     >
           <SafeAreaView>
                 <FlatList
@@ -211,8 +212,9 @@ const onShare = async (sharetext) => {
              
                 />
             </SafeAreaView>
-          </ScrollView>
           
+          </ScrollView>
+         
         </View>
 
 

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "gropchat",
-    "slug": "gropchat",
+    "name": "Chatroom",
+    "slug": "Chatroom",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -22,9 +22,14 @@
       "supportsTablet": true
     },
     "android": {
+      
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+       
+        "googleMobileAdsAppId": "ca-app-pub-3185366657620430/1873326666"
       },
       "package": "com.subhashcool.gropchat"
     },

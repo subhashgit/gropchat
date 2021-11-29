@@ -3,6 +3,13 @@ import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground, Touch
 import AuthContext from '../helpers/AuthContext'
 import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
+import {
+  AdMobBanner,
+  AdMobInterstitial,
+  PublisherBanner,
+  AdMobRewarded,
+  setTestDeviceIDAsync,
+} from 'expo-ads-admob';
 export default  function Header({ navigation }) {
 
 const [getfirstnamel, setgetfirstnamel] = useState('');
@@ -39,6 +46,11 @@ const [modalVisible, setModalVisible] = useState(false);
            
 
  </View>
+ <PublisherBanner
+  bannerSize="fullBanner"
+  adUnitID="ca-app-pub-3185366657620430/1873326666" // Test ID, Replace with your-admob-unit-id
+  servePersonalizedAds // true or false
+   />   
   {/* 
  <Drawer
         modalVisible={modalVisible}
@@ -88,8 +100,8 @@ const styles = StyleSheet.create({
   alignItems:'center',
   justifyContent:'flex-start'},
   listtxt:{marginLeft:10,},
-  containerwrapper:{paddingTop:40,paddingBottom:10,backgroundColor:'#000',paddingHorizontal:25,},
-  headicons:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
+  containerwrapper:{paddingTop:40,paddingBottom:0,backgroundColor:'#000',paddingHorizontal:25,},
+  headicons:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:10},
   userfletter:{color:'#fff',height:25,width:25,lineHeight:23,borderRadius:50,textAlign:'center',borderColor:'#fff',
 borderWidth:1,fontSize:12,
 }

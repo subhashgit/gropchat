@@ -45,7 +45,10 @@ useEffect(() => {
       />
       
     <View style={styles.container}>
-    
+    <ScrollView 
+          style={{marginBottom:125}}
+          
+    >
     <SafeAreaView style={{marginTop:0,marginBottom:0 }}>   
    
           <View style={styles.screen}>
@@ -76,9 +79,12 @@ useEffect(() => {
             )}
                 />
               )}
+
+
 </View>
          
          </SafeAreaView>
+         </ScrollView>
      </View>
      
     </View>
@@ -88,7 +94,7 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
   container: {
-   padding:15,
+   padding:15,paddingTop:0,
   },
   screen:{width:'100%',marginTop:0},
   

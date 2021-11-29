@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     },
     headerBackgroundImage: {
       paddingBottom: 20,
-      paddingTop: 45,
+      paddingTop: 25,
       backgroundColor:'#111',
       
     },
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
         textAlign:'center',
       },
       
-  textwelcome:{fontSize:30,marginTop:50,},
+  textwelcome:{fontSize:30,marginTop:0,},
   textdesc:{fontSize:14,marginTop:0,marginBottom:60,},
   textbox:{ borderBottomColor:'#000',borderBottomWidth:2,color:'#000',width:'100%',paddingVertical:10,
   marginVertical:5,},

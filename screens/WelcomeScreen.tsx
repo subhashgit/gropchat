@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { StyleSheet, Button, View, Text, Image, ImageBackground, TouchableOpacity } from 'react-native';
+import { StyleSheet, Button, View,Dimensions, Text, Image, ImageBackground, TouchableOpacity } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import AuthContext from './helpers/AuthContext'
+
 export default function WelcomeScreen({ navigation }) {
   const { signIn } = React.useContext(AuthContext);
+
   async function gettoken(key) { 
     
     let result = await SecureStore.getItemAsync(key);
@@ -41,14 +43,14 @@ export default function WelcomeScreen({ navigation }) {
   gettoken('token');
   
   return (
-    <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
+    <ImageBackground source={require('./img/background.png')}  imageStyle={{ resizeMode: 'repeat' }}  style={styles.image}>
     <View style={styles.container}>
 
     <Image source={require('./img/logo.png')}
   style={styles.imglogo}
 />
   <Text style={styles.textwelcome}>Welcome!</Text>
-  <Text style={styles.textdesc}>It is a long established fact that</Text>
+  <Text style={styles.textdesc}>Start Fun with Chatroom!</Text>
   
     <TouchableOpacity
   onPress={() => navigation.navigate('LoginScreen')}
@@ -63,7 +65,9 @@ export default function WelcomeScreen({ navigation }) {
 </TouchableOpacity>
      
     </View>
+    
     </ImageBackground>
+    
   );
 }
 
@@ -96,7 +100,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    justifyContent: "center"
+    justifyContent: "center",height:'100%'
   },
   imglogo:{width:120,height:120,},
   textwelcome:{fontSize:30,marginTop:50,},

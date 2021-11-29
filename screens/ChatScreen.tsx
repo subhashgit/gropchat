@@ -91,7 +91,7 @@ fetch('https://naturetour.in/apps/smartchatpro/sendmessage.php',
    
 })
   .then((response) => response.json())
-    .then((response) => {  msgInput.current.clear(); })  
+    .then((response) => {  msgInput.current.clear();setText(''); })  
   .catch((error) => console.error(error))
   .finally(() => setLoading(false));
 
