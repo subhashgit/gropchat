@@ -77,6 +77,7 @@ else{
         placeholder="Email"
         
       />
+      <Text  style={{color:'red'}}>{email.error}</Text>
       <TextInput
         label="Password"
         returnKeyType="done"
@@ -88,6 +89,7 @@ else{
         style={styles.textbox}
         placeholder="Password"
       />
+      <Text  style={{color:'red'}}>{password.error}</Text>
       <View style={styles.forgotPassword}>
         <TouchableOpacity
           onPress={() => navigation.navigate('ResetPasswordScreen')}

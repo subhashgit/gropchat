@@ -74,6 +74,7 @@ export default function RegisterScreen({navigation}) {
         style={styles.textbox}
         placeholder="Name"
       />
+      <Text  style={{color:'red'}}>{name.error}</Text>
       <TextInput
         label="Email"
         returnKeyType="next"
@@ -88,6 +89,7 @@ export default function RegisterScreen({navigation}) {
         style={styles.textbox}
         placeholder="Email"
       />
+      <Text  style={{color:'red'}}>{email.error}</Text>
       <TextInput
         label="Password"
         returnKeyType="done"
@@ -99,7 +101,7 @@ export default function RegisterScreen({navigation}) {
         style={styles.textbox}
         placeholder="Password"
       />
-
+<Text style={{color:'red'}}>{password.error}</Text>
 <RadioButtonRN
   data={data}
   animationTypes={['zoomIn']}

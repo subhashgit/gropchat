@@ -112,9 +112,6 @@ if(response.status === true){
 
 const ChangePassword = () =>
 {
-
-alert(email);
-
   fetch('https://naturetour.in/apps/smartchatpro/forgetpassword.php',
   {
       method: 'POST',
@@ -132,12 +129,6 @@ alert(email);
     
   
 }
-
-
-
-
-
-
 
     return (
       <View>

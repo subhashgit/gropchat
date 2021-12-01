@@ -199,7 +199,7 @@ function BottomTabNavigator() {
         }}
       />
      <BottomTab.Screen
-        name="Groups Chat"
+        name="Chat Rooms"
         component={GroupsChat}
         options={{
           headerShown: false,

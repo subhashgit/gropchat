@@ -57,7 +57,7 @@ export default function ResetPasswordScreen({navigation}) {
         style={styles.textbox}
         placeholder="Email"
       />
-
+<Text  style={{color:'red'}}>{email.error}</Text>
         <TouchableOpacity  onPress={sendResetPasswordEmail} style={styles.buttonStyle}>
                 <Text style={styles.btntxt}>Send Instructions</Text>
       </TouchableOpacity>
