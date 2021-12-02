@@ -5,58 +5,41 @@ import { RootTabScreenProps } from '../types';
 import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 var width = Dimensions.get('window').width; 
-
-export default function WelcomeScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+var userprofileinfo = require('./helpers/Authtoken.tsx');
+export default function SingleChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
   const { groupid, groupname } = route.params;
-  
   const [state, setState] = useState();
   const [isLoading, setLoading] = useState(true);
   const [text, setText] = useState('');
 const [data, setData] = useState([]);
 
-const [token, settoken] = useState('');
 const [email, setemail] = useState('');
-async function gettoken(key) {
-  let result = await SecureStore.getItemAsync(key);
-  if (result) {
-    
-    settoken(result);
-  } 
+const [username, setusername] = useState('');
+const userprofile = async() => {  
+  let result = await SecureStore.getItemAsync('token');
+await userprofileinfo.UserProfie(result).then((msg) => {
+  setemail(msg.email);
+  setusername(msg.username);
+}).catch((msg) => {
+  navigation.navigate('LoginScreen');
+})
 }
-gettoken('token');
 
-async function getValueFor(key) {
-  let result = await SecureStore.getItemAsync(key);
-  if (result) {
-     setemail(result);
-    
-  } 
-}
-getValueFor('email');
-
+ userprofile();
 
   const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
 
-const [username, setusername] = useState('');
-async function getValueF(key) {
-    
-    let result = await SecureStore.getItemAsync(key);
-    if (result) {
-       setusername(result);
-      
-    } 
-  }
-  getValueF('username');
   const [track, setTrack] = useState('');
 
   useEffect(() => {
     let repeat;
     async function fetchData() {
 
- await  fetch('https://naturetour.in/apps/smartchatpro/chat.php',
+ await  fetch(BASE_URL+'singlechat.php',
   {
       method: 'POST',
       headers: new Headers({
@@ -80,7 +63,7 @@ if( text == '' ){
 
   return;
 }
-fetch('https://naturetour.in/apps/smartchatpro/sendmessage.php',
+fetch(BASE_URL+'sendmessage.php',
 {
     method: 'POST',
     body: JSON.stringify({ message:text,groupid:groupid,email:email, username:username }),
@@ -102,11 +85,7 @@ const [refreshing, setRefreshing] = React.useState(false);
 
 const [offset, setOffset] = useState(1);
 const onRefresh = React.useCallback(() => {
-
    setRefreshing(true);
-
-
-
   wait(2000).then(() => setRefreshing(false));
 }, []);
 

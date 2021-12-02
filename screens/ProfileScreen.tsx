@@ -18,11 +18,12 @@ import { FontAwesome,  MaterialCommunityIcons
   import AuthContext from './helpers/AuthContext';
 
   import * as SecureStore from 'expo-secure-store';
-  import { emailValidator } from './helpers/emailValidator'
-  import { passwordValidator } from './helpers/passwordValidator'
   import { nameValidator } from './helpers/nameValidator'
   import RadioButtonRN from 'radio-buttons-react-native';
   import Header from "./component/header";
+  import SuperAlert from "react-native-super-alert";
+  var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+  var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default function ProfileScreen({ navigation }) {
 
 
@@ -34,33 +35,21 @@ export default function ProfileScreen({ navigation }) {
   });
   const [username, setusername] = useState('');
   const [email, setemail] = useState('');
-
   const [ugander, setuGander] = useState('');
-  async function getValueFor() {
-    let email = await SecureStore.getItemAsync('email');
-    let username = await SecureStore.getItemAsync('username');
-    setemail(email);
-    setusername(username);
-    fetch('https://naturetour.in/apps/smartchatpro/getuserbyemail.php',
-    {
-        method: 'POST',
-        body: JSON.stringify({ email: email}),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-      },
-       
-    })
-      .then((response) => response.json())
-      .then((response) => {
-          setuGander(response.message);
-         
-          
-        })  
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-  } 
-  getValueFor();
+  
+
+  const userprofile = async() => {  
+    let result = await SecureStore.getItemAsync('token');
+  await userprofileinfo.UserProfie(result).then((msg) => {
+    setemail(msg.email);
+  setusername(msg.username);
+  setuGander(msg.gander);
+  }).catch((msg) => {
+    navigation.navigate('LoginScreen');
+  })
+  }
+  userprofile();
+
   const [gander, setGander] = useState('');
 
 const data =[    {label: 'Male'     },     {      label: 'Female'     },     {      label: 'Other'     }];
@@ -78,7 +67,7 @@ const data =[    {label: 'Male'     },     {      label: 'Female'     },     {  
     }
    else{
 
-    fetch('https://naturetour.in/apps/smartchatpro/updateuserdetail.php',
+    fetch(BASE_URL+'updateuserdetail.php',
     {
         method: 'POST',
         body: JSON.stringify({ username: name.value, email: email, gander:gander }),
@@ -92,8 +81,8 @@ const data =[    {label: 'Male'     },     {      label: 'Female'     },     {  
       .then((response) => {
 if(response.status === true){
           alert(response.message);
-          signOut();
-         
+          userprofile();
+        
         }
         else{
           alert(response.message);
@@ -101,10 +90,6 @@ if(response.status === true){
         })  
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
-    
-
-
-
 
    }
   }
@@ -112,7 +97,7 @@ if(response.status === true){
 
 const ChangePassword = () =>
 {
-  fetch('https://naturetour.in/apps/smartchatpro/forgetpassword.php',
+  fetch(BASE_URL+'forgetpassword.php',
   {
       method: 'POST',
       body: JSON.stringify({ email: email }),
@@ -129,10 +114,24 @@ const ChangePassword = () =>
     
   
 }
+const customStyle = {
+  container: {
+    backgroundColor: '#ffffff',
+  },
+  buttonConfirm: {
+    backgroundColor: '#000',
+  },
+  title: {
+    color: '#000'
+  },
 
+}
     return (
       <View>
         <Header/>
+        <View>
+  <SuperAlert customStyle={customStyle}/> 
+</View>
       <ScrollView style={styles.scroll}>
         <View style={styles.container}>
           <View style={styles.cardContainer}>

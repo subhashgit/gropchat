@@ -6,23 +6,15 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Drawer from "./component/drawer";
 import Header from "./component/header";
-import Authcon from "./component/AuthCon";
-export default  function GroupsChat({ navigation }) {
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+export default  function RoomsList({ navigation }) {
 
   const [isLoading, setLoading] = useState(true);
 const [data, setData] = useState([]);
 
-async function getValueFor(key) {
-  let result = await SecureStore.getItemAsync(key);
-  
-  if (result) {
-         setemail(result);
-  } 
-}
-getValueFor('email');
 
 useEffect(() => {
-  fetch('https://naturetour.in/apps/smartchatpro/groups.php')
+  fetch(BASE_URL+'groups.php')
     .then((response) => response.json())
     //.then((response) => {console.log(response.message)})
     .then((json) => setData(json.message))
@@ -37,12 +29,7 @@ useEffect(() => {
     <View style={styles.image}>
     
     <Header/>
-    <Drawer
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        navigation={navigation}
-                              
-      />
+   
       
     <View style={styles.container}>
     <ScrollView 
@@ -60,7 +47,7 @@ useEffect(() => {
                   renderItem={({ item }) => (
 
            
-               <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('ChatScreen',{
+               <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('RoomsChatScreen',{
             groupid: item.id,
             groupname: item.groupname
           })}>
@@ -131,7 +118,8 @@ const styles = StyleSheet.create({
   headicons:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
   userfletter:{color:'#fff',height:25,width:25,lineHeight:23,borderRadius:50,textAlign:'center',borderColor:'#fff',
 borderWidth:1,fontSize:12,
-}
+},
+
 });
 
 

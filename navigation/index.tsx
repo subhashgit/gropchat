@@ -18,10 +18,14 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import DashboardScreen from '../screens/DashboardScreen';
-import ChatScreen from '../screens/ChatScreen';
-import GroupsChat from '../screens/GroupsChat';
+import RoomsChatScreen from '../screens/RoomsChatScreen';
+import SingleChatScreen from '../screens/SingleChatScreen';
+import RoomsList from '../screens/RoomsList';
+import UsersList from '../screens/UsersList';
 import CreatePost from '../screens/CreatePost';
 import MyPosts from '../screens/MyPosts';
+import UserProfileScreen from '../screens/UserProfileScreen';
+
 
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -29,6 +33,8 @@ import ProfileScreen from '../screens/ProfileScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import AuthContext from '../screens/helpers/AuthContext';
+
+var BASE_URL = require('../screens/helpers/ApiBaseUrl.tsx');
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
@@ -109,7 +115,7 @@ function RootNavigator() {
         
 
 
-          fetch('https://naturetour.in/apps/smartchatpro/signin.php',
+          fetch(BASE_URL+'signin.php',
           {
               method: 'POST',
               headers: new Headers({
@@ -162,7 +168,10 @@ function RootNavigator() {
       <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }}/>
-      <Stack.Screen name="ChatScreen" component={ChatScreen}  options={({ route }) => ({ title: route.params.groupname })}/>
+      <Stack.Screen name="RoomsChatScreen" component={RoomsChatScreen}  options={({ route }) => ({ title: route.params.groupname })}/>
+      <Stack.Screen name="SingleChatScreen" component={SingleChatScreen}  options={({ route }) => ({ title: route.params.username })}/>
+      <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={({ route }) => ({ title: route.params.username })} />
+ 
       
       
     </Stack.Navigator>
@@ -199,11 +208,11 @@ function BottomTabNavigator() {
         }}
       />
      <BottomTab.Screen
-        name="Chat Rooms"
-        component={GroupsChat}
+        name="Chat"
+        component={UsersList}
         options={{
           headerShown: false,
-          title: 'Chat Groups',
+          title: 'Chat',
           tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
         }}
       />
@@ -234,6 +243,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />
         }}
       />
+           <Stack.Screen name="RoomsList" component={RoomsList}  options={{ headerShown: false }} />
 
     </BottomTab.Navigator>
     

@@ -11,8 +11,8 @@ import * as Sharing from 'expo-sharing';
 
 import Image from 'react-native-scalable-image';
 
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default  function DashboardScreen({ navigation }) {
- 
 
 
   const wait = (timeout) => {
@@ -32,20 +32,12 @@ const [loading, setLoading] = useState(true);
 const [dataSource, setDataSource] = useState([]);
 const [offset, setOffset] = useState(1);
 const [data, setData] = useState([]);
-const [getfirstnamel, setgetfirstnamel] = useState('');
-const [getfullfirstnamel, setfullfirstnamel] = useState('');
-async function getValueFor() {
-  let username = await SecureStore.getItemAsync('username');
-  setfullfirstnamel(username);
-  setgetfirstnamel(username.charAt(0));
-} 
-getValueFor();
+
 
 useEffect(() => getData(), []);
 const getData = () => {
-  
 setLoading(true);
-fetch('https://naturetour.in/apps/smartchatpro/homeposts.php?page='+ offset)
+fetch(BASE_URL+'homeposts.php?page='+ offset)
   //Sending the currect offset with get request
   .then((response) => response.json())
   .then((responseJson) => {

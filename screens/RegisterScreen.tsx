@@ -5,7 +5,8 @@ import { passwordValidator } from './helpers/passwordValidator'
 import { nameValidator } from './helpers/nameValidator'
 import RadioButtonRN from 'radio-buttons-react-native';
 import AuthContext from './helpers/AuthContext'
-
+import SuperAlert from "react-native-super-alert";
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default function RegisterScreen({navigation}) {
   
   const { signIn } = useContext(AuthContext);
@@ -31,7 +32,7 @@ export default function RegisterScreen({navigation}) {
     }
    else{
 
-      fetch('https://naturetour.in/apps/smartchatpro/signup.php',
+      fetch(BASE_URL+'signup.php',
       {
           method: 'POST',
           body: JSON.stringify({ username: name.value, email: email.value, password:password.value,gander:gander.label }),
@@ -57,9 +58,24 @@ export default function RegisterScreen({navigation}) {
       }
 
   }
+  const customStyle = {
+    container: {
+      backgroundColor: '#ffffff',
+    },
+    buttonConfirm: {
+      backgroundColor: '#000',
+    },
+    title: {
+      color: '#000'
+    },
+
+  }
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
     <View style={styles.container}>
+    <View>
+  <SuperAlert customStyle={customStyle}/> 
+</View>
     <Image source={require('./img/logo.png')}
   style={styles.imglogo}
 />

@@ -10,8 +10,8 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing'; 
 import Image from 'react-native-scalable-image';
-
-export default  function DashboardScreen({ navigation }) {
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+export default  function MyPosts({ navigation }) {
   
 
   const wait = (timeout) => {
@@ -40,13 +40,14 @@ useEffect(() => getData(), []);
 
 const getData = async ()=> {
   let useremail = await SecureStore.getItemAsync('email');
+  let token = await SecureStore.getItemAsync('token');
   setuseremail(useremail);
   setLoading(true);
-  fetch('https://naturetour.in/apps/smartchatpro/myposts.php?page='+ offset,
+  fetch(BASE_URL+'myposts.php?page='+ offset,
   
   {
     method: 'POST',
-    body: JSON.stringify({ email: useremail }),
+    body: JSON.stringify({ email: useremail, token:token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -92,7 +93,7 @@ const deletepost = async (key) => {
 const deletepostconfirm = async (key) => {
   let useremail = await SecureStore.getItemAsync('email');
   setLoading(true);
-  fetch('https://naturetour.in/apps/smartchatpro/deletepost.php',
+  fetch(BASE_URL+'deletepost.php',
   {
     method: 'POST',
     body: JSON.stringify({ email: useremail, postid:key }),

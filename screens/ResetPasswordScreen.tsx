@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { StyleSheet, TextInput, Text ,View , TouchableOpacity, ImageBackground, Image} from 'react-native';
 import { emailValidator } from './helpers/emailValidator'
-
+import SuperAlert from "react-native-super-alert";
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default function ResetPasswordScreen({navigation}) {
   const [email, setEmail] = useState({ value: '', error: '' })
 
@@ -13,7 +14,7 @@ export default function ResetPasswordScreen({navigation}) {
     }
     else{
  
-        fetch('https://naturetour.in/apps/smartchatpro/forgetpassword.php',
+        fetch(BASE_URL+'forgetpassword.php',
         {
             method: 'POST',
             body: JSON.stringify({ email: email.value }),
@@ -29,15 +30,26 @@ export default function ResetPasswordScreen({navigation}) {
           .finally(() => setLoading(false));
           
         }
+  }
+  const customStyle = {
+    container: {
+      backgroundColor: '#ffffff',
+    },
+    buttonConfirm: {
+      backgroundColor: '#000',
+    },
+    title: {
+      color: '#000'
+    },
 
-    
-
-    
   }
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
        
     <View style={styles.container}>
+    <View>
+  <SuperAlert customStyle={customStyle}/> 
+</View>
     <Image source={require('./img/logo.png')}
   style={styles.imglogo}
 />

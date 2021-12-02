@@ -3,37 +3,33 @@ import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground, Touch
 import AuthContext from '../helpers/AuthContext'
 import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
+var BASE_URL = require('../helpers/ApiBaseUrl.tsx');
+
+var userprofileinfo = require('../helpers/Authtoken.tsx');
+
 import {
-  AdMobBanner,
-  AdMobInterstitial,
   PublisherBanner,
-  AdMobRewarded,
-  setTestDeviceIDAsync,
 } from 'expo-ads-admob';
+import LoginScreen from "../LoginScreen";
 export default  function Header({ navigation }) {
 
-const [getfirstnamel, setgetfirstnamel] = useState('');
-async function gettoken() {
-let result = await SecureStore.getItemAsync('token');
-  if (result) {
-    fetch('https://naturetour.in/apps/smartchatpro/getauthname.php',
-    {
-        method: 'POST',
-        headers: new Headers({
-             'Content-Type': 'application/x-www-form-urlencoded', // <-- Specifying the Content-Type
-    }),
-        body: JSON.stringify({ token: result  })
-    })
-      .then((response) => response.json())
-       .then((response) => {SecureStore.setItemAsync('username', response.message ); 
-       setgetfirstnamel(response.message.charAt(0));
-      })
-      .catch((error) => console.error(error))
-      .finally(() => setLoading(false));
-       } 
-}
-gettoken();
+const [userinfo, setuserinfo] = useState([]);
+const [firstnamelaller, setfirstnamelaller] = useState([]);
 
+
+const userprofile = async() => {  
+  let result = await SecureStore.getItemAsync('token');
+await userprofileinfo.UserProfie(result).then((msg) => {
+  setfirstnamelaller(msg.username.charAt(0));
+}).catch((msg) => {
+  navigation.navigate(LoginScreen);
+})
+}
+
+ userprofile();
+
+
+//setfirstnamelaller(userinfo.username);
 const [modalVisible, setModalVisible] = useState(false);
   return (
       <View style={styles.containerwrapper}>
@@ -42,7 +38,7 @@ const [modalVisible, setModalVisible] = useState(false);
   style={styles.imglogo}
 />
            
-     <Text style={styles.userfletter}>{getfirstnamel}</Text>
+     <Text style={styles.userfletter}>{firstnamelaller}</Text>
            
 
  </View>

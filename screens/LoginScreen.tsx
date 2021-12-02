@@ -2,7 +2,9 @@ import React, {useEffect, useState, useContext  } from "react";
 import { StyleSheet, Button, View, Text, TouchableOpacity, TextInput, ImageBackground, Image, AsyncStorage  } from 'react-native';
 import { emailValidator } from './helpers/emailValidator'
 import { passwordValidator } from './helpers/passwordValidator'
-import { BASE_URL } from './config/base'
+import SuperAlert from "react-native-super-alert";
+
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 import AuthContext from './helpers/AuthContext'
 
 export default function LoginScreen({navigation}) {
@@ -23,7 +25,7 @@ export default function LoginScreen({navigation}) {
     }
 else{
   
-      fetch('https://naturetour.in/apps/smartchatpro/login.php',
+      fetch(BASE_URL+'login.php',
       {
           method: 'POST',
           body: JSON.stringify({ email: email.value, password:password.value, }),
@@ -55,9 +57,26 @@ else{
 
   }
 
+  const customStyle = {
+    container: {
+      backgroundColor: '#ffffff',
+    },
+    buttonConfirm: {
+      backgroundColor: '#000',
+    },
+    title: {
+      color: '#000'
+    },
+
+  }
+
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
+
     <View style={styles.container}>
+             <View>
+                <SuperAlert customStyle={customStyle}/> 
+            </View>
     <Image source={require('./img/logo.png')}
   style={styles.imglogo}
 />

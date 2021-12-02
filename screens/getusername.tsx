@@ -4,11 +4,12 @@ import {  Text } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 export default  function username({ navigation }) {
 
+  var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 const [getfirstnamel, setgetfirstnamel] = useState('');
 async function gettoken() {
 let result = await SecureStore.getItemAsync('token');
   if (result) {
-    fetch('https://naturetour.in/apps/smartchatpro/getauthname.php',
+    fetch(BASE_URL+'getauthname.php',
     {
         method: 'POST',
         headers: new Headers({

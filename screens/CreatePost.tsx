@@ -7,6 +7,9 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Header from "./component/header";
 import Spinner from 'react-native-loading-spinner-overlay';
+import SuperAlert from "react-native-super-alert";
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default function CreatePost(navigation) {
   const [image, setImage] = useState(null);
   const [type, settype] = useState(null);
@@ -15,6 +18,24 @@ export default function CreatePost(navigation) {
   const [description, setdescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
+
+  const [useremai, setuseremai] = useState('');
+  const [username, setusername] = useState('');
+
+
+
+  const userprofile = async() => {  
+    let result = await SecureStore.getItemAsync('token');
+  await userprofileinfo.UserProfie(result).then((msg) => {
+    setuseremai(msg.email);
+    setusername(msg.username);
+    
+  }).catch((msg) => {
+    navigation.navigate('LoginScreen');
+  })
+  }
+  
+   userprofile();
   
   useEffect(() => {
     (async () => {
@@ -44,11 +65,7 @@ console.log(resultt.base64);
 
   const UploadImage = async () => {
     setLoading(true);
-   const useremai = await SecureStore.getItemAsync('email');
-   const username = await SecureStore.getItemAsync('username');
-
-    
-    fetch('https://naturetour.in/apps/smartchatpro/createpost.php',
+    fetch(BASE_URL+'createpost.php',
     {
       
       
@@ -73,7 +90,18 @@ console.log(resultt.base64);
 
   }
 
-  
+  const customStyle = {
+    container: {
+      backgroundColor: '#ffffff',
+    },
+    buttonConfirm: {
+      backgroundColor: '#000',
+    },
+    title: {
+      color: '#000'
+    },
+
+  }
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
        <Spinner
@@ -84,6 +112,9 @@ console.log(resultt.base64);
           //Text style of the Spinner Text
           textStyle={styles.spinnerTextStyle}
         />
+         <View>
+  <SuperAlert customStyle={customStyle}/> 
+</View>
       <Header/>
     <Drawer
         modalVisible={modalVisible}
