@@ -17,7 +17,7 @@ import { FontAwesome,  MaterialCommunityIcons
 
   var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default function UserProfileScreen({ navigation,route }) {
-  const { username, gander } = route.params;
+  const { username, gander, userid } = route.params;
     return (
       <View style={styles.container}>
         
@@ -30,8 +30,9 @@ export default function UserProfileScreen({ navigation,route }) {
         </View>
         
   
-        <TouchableOpacity onPress={()=> navigation.navigate('UserProfileScreen',{
-            userid: ''           
+        <TouchableOpacity onPress={()=> navigation.navigate('SingleChatScreen',{
+            userid: userid,
+            username:username,          
           })} style={styles.logoutbtn}>
         <Text style={styles.btntxt}>Send Message</Text>
                   <MaterialCommunityIcons

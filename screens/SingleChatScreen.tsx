@@ -8,19 +8,22 @@ var width = Dimensions.get('window').width;
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default function SingleChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
-  const { groupid, groupname } = route.params;
+  const { userid, username } = route.params;
   const [state, setState] = useState();
   const [isLoading, setLoading] = useState(true);
   const [text, setText] = useState('');
 const [data, setData] = useState([]);
 
 const [email, setemail] = useState('');
-const [username, setusername] = useState('');
+const [susername, setsusername] = useState('');
+const [token, settoken] = useState('');
+
 const userprofile = async() => {  
   let result = await SecureStore.getItemAsync('token');
 await userprofileinfo.UserProfie(result).then((msg) => {
   setemail(msg.email);
-  setusername(msg.username);
+  setsusername(msg.username);
+  settoken(result);
 }).catch((msg) => {
   navigation.navigate('LoginScreen');
 })
@@ -38,35 +41,45 @@ await userprofileinfo.UserProfie(result).then((msg) => {
   useEffect(() => {
     let repeat;
     async function fetchData() {
-
- await  fetch(BASE_URL+'singlechat.php',
+      let tokent = await SecureStore.getItemAsync('token');
+      let emailv = await SecureStore.getItemAsync('email');
+   fetch(BASE_URL+'singlechat.php',
   {
+    
       method: 'POST',
       headers: new Headers({
            'Content-Type': 'application/x-www-form-urlencoded', 
   }),
-      body: JSON.stringify({ groupid: groupid, groupname:groupname  })
+      body: JSON.stringify({ userid:userid,senderemail:emailv, token:tokent })
   })
     .then((response) => response.json())
-     .then((json) => setData(json.message))
+    .then((response)=>{
+      if(response.startedchat === false){return;}
+     // console.log(response.message)
+      setData(response.message);
+    })
+     
     .catch((error) => console.error(error))
     .finally(() => setLoading(false));
     repeat = setTimeout(fetchData, 1000);
 }
+
 fetchData();
+
   }, []);
      const msgInput = useRef();
      const scrollViewRef = useRef();
 
+     
 const onSendPressed = () => {
 if( text == '' ){
 
   return;
 }
-fetch(BASE_URL+'sendmessage.php',
+fetch(BASE_URL+'sendmessagesingle.php',
 {
     method: 'POST',
-    body: JSON.stringify({ message:text,groupid:groupid,email:email, username:username }),
+    body: JSON.stringify({ message:text,userid:userid,senderemail:email, senderusername:susername, token:token }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -74,7 +87,7 @@ fetch(BASE_URL+'sendmessage.php',
    
 })
   .then((response) => response.json())
-    .then((response) => {  msgInput.current.clear();setText(''); })  
+    .then((response) => { console.log(response.message);  msgInput.current.clear();setText(''); })  
   .catch((error) => console.error(error))
   .finally(() => setLoading(false));
 
@@ -88,6 +101,20 @@ const onRefresh = React.useCallback(() => {
    setRefreshing(true);
   wait(2000).then(() => setRefreshing(false));
 }, []);
+
+const ItemView = ({item}) => {
+
+
+  return (
+
+    <View  style={styles.listoption}>
+    <Text style={styles.usenametex}>{item.userdataname}</Text>
+    <Text style={styles.msgdatetime}>{item.msgtimedate}</Text>
+    
+    <Text style={styles.listtxt}>{item.message}</Text>
+    
+  </View>
+  )};
 
   return (
     
@@ -105,22 +132,13 @@ const onRefresh = React.useCallback(() => {
     
           <View style={styles.screen}>
   
-    {isLoading ? <ActivityIndicator/> : (
+          {isLoading ? <ActivityIndicator/> : (
                 <FlatList
-                  data={data}
-                  keyExtractor={({ id }, index) => id}
-                  renderItem={({ item }) => (
-              <View  style={styles.listoption}>
-              <Text style={styles.usenametex}>{item.userdataname}</Text>
-              <Text style={styles.msgdatetime}>{item.msgtimedate}</Text>
-              
-              <Text style={styles.listtxt}>{item.message}</Text>
-              
-            </View>
-           
-           
-            )}
-                />
+                data={data}
+                keyExtractor={(item, index) => index.toString()}
+                enableEmptySections={true}
+                renderItem={ItemView}
+          />
               )}
 </View>
  

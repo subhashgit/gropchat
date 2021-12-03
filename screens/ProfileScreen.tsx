@@ -62,7 +62,7 @@ const data =[    {label: 'Male'     },     {      label: 'Female'     },     {  
     const nameError = nameValidator(name.value);
 
     if ( nameError) {
-      
+      alert('please fill new name');
       return
     }
    else{
@@ -182,7 +182,7 @@ const customStyle = {
         style={styles.textbox}
         placeholder={username}
       />
-
+<Text  style={{color:'red'}}>{name.error}</Text>
 <RadioButtonRN
   data={data}
   animationTypes={['zoomIn']}

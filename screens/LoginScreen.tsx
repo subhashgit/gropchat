@@ -3,7 +3,7 @@ import { StyleSheet, Button, View, Text, TouchableOpacity, TextInput, ImageBackg
 import { emailValidator } from './helpers/emailValidator'
 import { passwordValidator } from './helpers/passwordValidator'
 import SuperAlert from "react-native-super-alert";
-
+import Spinner from 'react-native-loading-spinner-overlay';
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 import AuthContext from './helpers/AuthContext'
 
@@ -13,7 +13,7 @@ export default function LoginScreen({navigation}) {
   const { signIn } = useContext(AuthContext);
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
-
+  const [Loading, setLoading] = useState(false);
   const onLoginPressed = () => {
     const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
@@ -24,7 +24,7 @@ export default function LoginScreen({navigation}) {
       
     }
 else{
-  
+  setLoading(true)
       fetch(BASE_URL+'login.php',
       {
           method: 'POST',
@@ -38,7 +38,7 @@ else{
         .then((response) => response.json())
         
         .then((response) => {
-          if(response.message == 'true' )
+          if(response.status === true )
           {
             signIn({email:emailval});
               
@@ -72,7 +72,14 @@ else{
 
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
-
+ <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={Loading}
+          //Text with the Spinner
+          textContent={'Loading...'}
+          //Text style of the Spinner Text
+          textStyle={styles.spinnerTextStyle}
+        />
     <View style={styles.container}>
              <View>
                 <SuperAlert customStyle={customStyle}/> 
@@ -187,5 +194,6 @@ const styles = StyleSheet.create({
   textdesc:{fontSize:14,marginTop:0,marginBottom:60,},
   textbox:{ borderBottomColor:'#000',borderBottomWidth:2,color:'#000',width:'100%',paddingVertical:10,
   marginVertical:5,},
+  spinnerTextStyle:{color:'#fff'}
 
 })

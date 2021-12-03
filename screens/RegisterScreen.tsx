@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   marginVertical:5,},
   radiotextwrapper:{marginLeft:10},
   radiostyle:{flexDirection:'row',},
-  radioboxStyle:{width:'32%', marginHorizontal:'1%'}, 
+  radioboxStyle:{width:'32%',borderColor:'#000', marginHorizontal:'1%'}, 
   
   
 });

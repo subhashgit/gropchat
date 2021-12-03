@@ -66,6 +66,7 @@ const onShare = async (sharetext) => {
   const onRefresh = React.useCallback(() => {
 
      setRefreshing(true);
+     setOffset(1);
      getData();
     wait(2000).then(() => setRefreshing(false));
   }, []);

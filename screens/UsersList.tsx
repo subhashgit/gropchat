@@ -115,7 +115,7 @@ setcemail(email);
       
     <View style={styles.container}>
     <ScrollView 
-          style={{marginBottom:125}}
+          style={{marginBottom:165}}
           showsHorizontalScrollIndicator={false}
           onScroll={({nativeEvent}) => {
             if (isCloseToBottom(nativeEvent)) {

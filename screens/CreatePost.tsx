@@ -108,7 +108,7 @@ console.log(resultt.base64);
           //visibility of Overlay Loading Spinner
           visible={Loading}
           //Text with the Spinner
-          textContent={'Loading...'}
+          textContent={'Uploading...'}
           //Text style of the Spinner Text
           textStyle={styles.spinnerTextStyle}
         />
@@ -185,5 +185,5 @@ const styles = StyleSheet.create({
   radiotextwrapper:{marginLeft:10},
   radiostyle:{flexDirection:'row',justifyContent:'center'},
   radioboxStyle:{width:'44%', marginHorizontal:'1%'}, 
-
+  spinnerTextStyle:{color:'#fff'}
 })

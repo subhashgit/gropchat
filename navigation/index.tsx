@@ -171,8 +171,8 @@ function RootNavigator() {
       <Stack.Screen name="RoomsChatScreen" component={RoomsChatScreen}  options={({ route }) => ({ title: route.params.groupname })}/>
       <Stack.Screen name="SingleChatScreen" component={SingleChatScreen}  options={({ route }) => ({ title: route.params.username })}/>
       <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={({ route }) => ({ title: route.params.username })} />
- 
-      
+      <Stack.Screen name="RoomsList" component={RoomsList}  options={{ headerShown: true, title:'Chat Rooms' }} />
+
       
     </Stack.Navigator>
     </AuthContext.Provider>
@@ -243,7 +243,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />
         }}
       />
-           <Stack.Screen name="RoomsList" component={RoomsList}  options={{ headerShown: false }} />
+      
 
     </BottomTab.Navigator>
     

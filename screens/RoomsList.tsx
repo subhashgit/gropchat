@@ -28,12 +28,12 @@ useEffect(() => {
   
     <View style={styles.image}>
     
-    <Header/>
+   
    
       
     <View style={styles.container}>
     <ScrollView 
-          style={{marginBottom:125}}
+          style={{marginBottom:0}}
           
     >
     <SafeAreaView style={{marginTop:0,marginBottom:0 }}>   
