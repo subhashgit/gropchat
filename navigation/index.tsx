@@ -22,12 +22,17 @@ import RoomsChatScreen from '../screens/RoomsChatScreen';
 import SingleChatScreen from '../screens/SingleChatScreen';
 import RoomsList from '../screens/RoomsList';
 import UsersList from '../screens/UsersList';
+import ChatList from '../screens/ChatList';
+
 import CreatePost from '../screens/CreatePost';
 import MyPosts from '../screens/MyPosts';
 import UserProfileScreen from '../screens/UserProfileScreen';
-
-
 import ProfileScreen from '../screens/ProfileScreen';
+import AddImage from '../screens/AddImage';
+import AddQuotes from '../screens/AddQuotes';
+import SearchScreen from '../screens/SearchScreen';
+import Sample from '../screens/Sample';
+
 
 
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
@@ -136,10 +141,8 @@ function RootNavigator() {
         dispatch({ type: 'SIGN_IN', token: 'dummy-auth-token' });
       },
       signOut: async() =>{ 
-        
         SecureStore.deleteItemAsync('token');
         SecureStore.deleteItemAsync('email');
-        SecureStore.deleteItemAsync('username');
         dispatch({ type: 'SIGN_OUT' });
     },
 
@@ -160,11 +163,14 @@ function RootNavigator() {
   return (
     <AuthContext.Provider value={authContext}>
     <Stack.Navigator>
-    {state.userToken == null ? (
+    {state.userToken == null ? 
       <Stack.Screen name="Root" component={WelcomeScreen}    options={{ headerShown: false }} />
-      ) : (
+       : 
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }}/>
-      )}    
+    }
+      {state.userToken == null ? null :
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen}  options={{ headerShown: true, title:'My profile' }} />
+      }    
       <Stack.Screen name="LoginScreen" component={LoginScreen} options={{ headerShown: false }} />
        <Stack.Screen name="RegisterScreen" component={RegisterScreen} options={{ headerShown: false }}/>
       <Stack.Screen name="ResetPasswordScreen" component={ResetPasswordScreen} options={{ headerShown: false }}/>
@@ -172,7 +178,11 @@ function RootNavigator() {
       <Stack.Screen name="SingleChatScreen" component={SingleChatScreen}  options={({ route }) => ({ title: route.params.username })}/>
       <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={({ route }) => ({ title: route.params.username })} />
       <Stack.Screen name="RoomsList" component={RoomsList}  options={{ headerShown: true, title:'Chat Rooms' }} />
+      <Stack.Screen name="AddImage" component={AddImage}  options={{ headerShown: true, title:'Upload Image' }} />
+      <Stack.Screen name="AddQuotes" component={AddQuotes}  options={{ headerShown: true, title:'Add Quotes' }} />
 
+      
+      
       
     </Stack.Navigator>
     </AuthContext.Provider>
@@ -207,15 +217,16 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />
         }}
       />
-     <BottomTab.Screen
-        name="Chat"
-        component={UsersList}
+         <BottomTab.Screen
+        name="SearchScreen"
+        component={SearchScreen}
         options={{
           headerShown: false,
-          title: 'Chat',
-          tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
+          title: 'Search',
+          tabBarIcon: ({ color }) => <TabBarIcon name="search1" color={color} />
         }}
       />
+  
        <BottomTab.Screen
         name="CreatePost"
         component={CreatePost}
@@ -225,26 +236,28 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="pluscircleo" color={color} />
         }}
       />
+         <BottomTab.Screen
+        name="Chat"
+        component={ChatList}
+        options={{
+          headerShown: false,
+          title: 'Chat',
+          tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
+        }}
+      />
         <BottomTab.Screen
         name="MyPosts"
         component={MyPosts}
         options={{
           headerShown: false,
-          title: 'My Post',
+          title: 'MyPosts',
           tabBarIcon: ({ color }) => <TabBarIcon name="picture" color={color} />
         }}
       />
-      <BottomTab.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
-        options={{
-          headerShown: false,
-          title: 'My Account',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />
-        }}
-      />
       
-
+      
+       
+     
     </BottomTab.Navigator>
     
   );
@@ -255,7 +268,7 @@ function BottomTabNavigator() {
  */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof AntDesign>['name'];
-  color: string;
+  color: '#000';
 }) {
   return <AntDesign size={30} style={{ marginBottom: -3 }} {...props} />;
 }

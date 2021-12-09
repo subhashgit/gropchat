@@ -1,5 +1,7 @@
-import React, {useEffect, useState, useContext } from "react";
-import { StyleSheet, Button,RefreshControl,Share, View,Dimensions,Linking,Alert,PermissionsAndroid, Text,TextInput, ImageBackground,Clipboard, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import React, {useEffect, useState, useContext, useRef } from "react";
+import Constants from 'expo-constants';
+
+import { StyleSheet, Button,RefreshControl,Share,Platform,  View,Dimensions,Linking,Alert,PermissionsAndroid, Text,TextInput, ImageBackground,Clipboard, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
@@ -8,12 +10,99 @@ import Header from "./component/header";
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing'; 
-
+import * as Notifications from 'expo-notifications';
 import Image from 'react-native-scalable-image';
 
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 export default  function DashboardScreen({ navigation }) {
 
+  
+  
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+const [expoPushToken, setExpoPushToken] = useState('');
+const [notification, setNotification] = useState(false);
+const notificationListener = useRef();
+const responseListener = useRef();
+
+useEffect(() => {
+  registerForPushNotificationsAsync().then(expotoken => setExpoPushToken(expotoken));
+
+  // This listener is fired whenever a notification is received while the app is foregrounded
+  notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+    setNotification(notification);
+  });
+
+  // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+  responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+    console.log(response);
+  });
+
+  return () => {
+    Notifications.removeNotificationSubscription(notificationListener.current);
+    Notifications.removeNotificationSubscription(responseListener.current);
+  };
+}, []);
+
+async function registerForPushNotificationsAsync() {
+  let expotoken;
+  if (Constants.isDevice) {
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    let expotoken = (await Notifications.getExpoPushTokenAsync()).data;
+
+    let token = await SecureStore.getItemAsync('token');
+    let email = await SecureStore.getItemAsync('email');
+
+    fetch(BASE_URL+'expotoken.php',
+    {
+        method: 'POST',
+        headers: new Headers({
+             'Content-Type': 'application/x-www-form-urlencoded', // <-- Specifying the Content-Type
+    }),
+        body: JSON.stringify({ expotoken: expotoken, token:token, email:email   })
+    })
+      .then((response) => response.json())
+       .then((response) => {console.log(response.message)})
+      .catch((error) => console.error(error))
+      .finally(() => {});
+
+
+  if (Platform.OS === 'android') {
+    Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  return expotoken;
+}
+}
 
   const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -60,7 +149,7 @@ const onShare = async (sharetext) => {
     });
 };
 
- const [modalVisible, setModalVisible] = useState(false);
+ const [profiledata, setprofiledata] = useState(true);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -174,7 +263,7 @@ const onShare = async (sharetext) => {
 
 <View style={styles.outer}>
         
-    <Header/>
+    <Header  navigation={navigation} setprofiledata={true}/>
 </View>
       <View style={styles.screen}>
             <View  style={styles.categorieslisting}>  
@@ -194,6 +283,7 @@ const onShare = async (sharetext) => {
     scrollEventThrottle={400}
     >
           <SafeAreaView>
+            <View>
                 <FlatList
                  data={dataSource}
           keyExtractor={(item, index) => index.toString()}
@@ -204,6 +294,7 @@ const onShare = async (sharetext) => {
 
              
                 />
+                </View>
             </SafeAreaView>
           
           </ScrollView>

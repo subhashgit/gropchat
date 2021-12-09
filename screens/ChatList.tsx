@@ -8,9 +8,9 @@ import Drawer from "./component/drawer";
 import Header from "./component/header";
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
-export default  function UsersList({ navigation }) {
+export default  function ChatList({ navigation }) {
 
-  const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+  const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {  
     const paddingToBottom = 20;
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
@@ -18,17 +18,28 @@ export default  function UsersList({ navigation }) {
   const [cemail, setcemail] = useState('');
   const [loading, setLoading] = useState(true);
   const [truev, settruev] = useState('');
+  const [nomessage, setnomessage] = useState('');
+  
   
   const [dataSource, setDataSource] = useState([]);
 const [offset, setOffset] = useState(1);
 
-useEffect(() => getData(), []);
+useEffect(() => {
+const unsubscribe = navigation.addListener('focus', () => {
+  getData()
+
+});
+
+// Return the function to unsubscribe from the event so it gets removed on unmount
+return unsubscribe;
+}, [navigation]);
+
 
 const getData = async ()=> {
   let email = await SecureStore.getItemAsync('email');
   let token = await SecureStore.getItemAsync('token');
-setcemail(email);
-  fetch(BASE_URL+'userslist.php?page='+ offset,
+  setcemail(email);
+  fetch(BASE_URL+'chatlist.php?page=',
   {
       method: 'POST',
       body: JSON.stringify({email: email, token:token}),
@@ -41,10 +52,12 @@ setcemail(email);
      //Sending the currect offset with get request
      .then((response) => response.json())
      .then((responseJson) => {
-
-       if(responseJson.message === null){setLoading(false); return;}
-       setOffset(offset + 1);
-       setDataSource([...dataSource, ...responseJson.message]);
+     
+       if(responseJson.message === null){setLoading(false);  return;}
+       if(responseJson.status === null){ setnomessage(responseJson.message); return;}
+     //  setOffset(offset + 1);
+     setnomessage('')
+       setDataSource(responseJson.message);
        setLoading(false);
      
      })
@@ -63,30 +76,29 @@ setcemail(email);
     const email = item.email;
 
     return (
-
-     
+<View style={{width:'100%'}}>
+      <TouchableOpacity   activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
+        userid: item.id,
+        username:item.username,          
+      })}>
               <View  style={[styles.listoption, email == cemail ? styles.noneconta : null]}>  
          
               <View style={{flexDirection:'row'}}>
-              <Text style={styles.icouser}>{item.username.charAt(0)}</Text>         
-              <Text style={styles.listtxt}>{item.username}<Text style={{fontSize:12}}>{"\n"}({item.gander})</Text></Text>
-              </View>
-        <View style={styles.buttoncontainer}>
-              <TouchableOpacity style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
+               <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
             userid: item.id,
             username: item.username,
             gander: item.gander            
-          })}><Text style={{color:'#fff',textAlign:"center"}}>View Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity  style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
-            userid: item.id,
-            username:item.username,          
-          })}><Text  style={{color:'#fff',textAlign:"center"}}>Send Message</Text>
-          </TouchableOpacity>
-            </View>
+          })}>
+            <Text style={styles.icouser}>{item.username.charAt(0)}</Text>   
+           </TouchableOpacity>       
+              <Text style={styles.listtxt}>{item.username}<Text style={{fontSize:12}}>{"\n"}({item.gander})</Text></Text>
+              </View>
+
            
           </View>
-        
+          </TouchableOpacity>
+
+          </View>
             )};
   const renderFooter = () => {
     return (
@@ -107,6 +119,7 @@ setcemail(email);
     <View style={styles.image}>
     
     <Header  navigation={navigation}/>
+    {nomessage ? <Text style={{textAlign:'center',marginTop:5,}}>{nomessage}</Text> : null}
     <View style={styles.tabs}>
       <TouchableOpacity onPress={()=> navigation.navigate('RoomsList')}  style={styles.tab}>
         <Text  style={{textAlign:'center',color:'#fff'}}>Chat Rooms</Text>
@@ -116,6 +129,7 @@ setcemail(email);
     <View style={styles.container}>
     <ScrollView 
           style={{marginBottom:165}}
+          showsVerticalScrollIndicator ={false}
           showsHorizontalScrollIndicator={false}
           onScroll={({nativeEvent}) => {
             if (isCloseToBottom(nativeEvent)) {

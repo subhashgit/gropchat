@@ -20,6 +20,7 @@ import AuthContext from '../helpers/AuthContext';
 
 import * as SecureStore from 'expo-secure-store';
 
+var userprofileinfo = require('../helpers/Authtoken.tsx');
 export default function Drawer({ navigation,
     modalVisible,
     setModalVisible }) {
@@ -32,13 +33,21 @@ export default function Drawer({ navigation,
   });
   const [username, setusername] = useState('');
 const [email, setemail] = useState('');
-  async function getValueFor() {
-    let email = await SecureStore.getItemAsync('email');
-    let username = await SecureStore.getItemAsync('username');
-    setemail(email);
-    setusername(username);
-  } 
-  getValueFor();
+
+if(modalVisible){
+const userprofile = async() => {  
+  let result = await SecureStore.getItemAsync('token');
+await userprofileinfo.UserProfie(result).then((msg) => {
+  setusername(msg.username);
+  setemail(msg.email);
+}).catch((msg) => {
+  navigation.navigate('LoginScreen');
+})
+}
+
+ userprofile();
+
+}
 const onpressprofile = () =>{
   navigation.navigate('ProfileScreen');
 //  alert();

@@ -3,17 +3,19 @@ import { StyleSheet, Button, View,Dimensions, Text, Image, ImageBackground, Touc
 import * as SecureStore from 'expo-secure-store';
 import AuthContext from './helpers/AuthContext'
 
+import Spinner from 'react-native-loading-spinner-overlay';
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default function WelcomeScreen({ navigation }) {
   const { signIn } = React.useContext(AuthContext);
-
+  const [Loading, setLoading] =  React.useState(false);
   async function gettoken(key) { 
     
     let result = await SecureStore.getItemAsync(key);
     
     let emailva = await SecureStore.getItemAsync('email');
     if (result) {
-       
-      fetch('https://naturetour.in/apps/smartchatpro/getauthname.php',
+      setLoading(true);
+      fetch(BASE_URL+'getauthname.php',
       {
           method: 'POST',
           headers: new Headers({
@@ -45,7 +47,14 @@ export default function WelcomeScreen({ navigation }) {
   return (
     <ImageBackground source={require('./img/background.png')}  imageStyle={{ resizeMode: 'repeat' }}  style={styles.image}>
     <View style={styles.container}>
-
+    <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={Loading}
+          //Text with the Spinner
+          textContent={'Loading...'}
+          //Text style of the Spinner Text
+          textStyle={styles.spinnerTextStyle}
+        />
     <Image source={require('./img/logo.png')}
   style={styles.imglogo}
 />
@@ -104,6 +113,8 @@ const styles = StyleSheet.create({
   },
   imglogo:{width:120,height:120,},
   textwelcome:{fontSize:30,marginTop:50,},
-  textdesc:{fontSize:14,marginTop:0,marginBottom:60,}
+  textdesc:{fontSize:14,marginTop:0,marginBottom:60,},
+  
+  spinnerTextStyle:{color:'#fff'}
 
 });

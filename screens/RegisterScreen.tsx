@@ -6,6 +6,8 @@ import { nameValidator } from './helpers/nameValidator'
 import RadioButtonRN from 'radio-buttons-react-native';
 import AuthContext from './helpers/AuthContext'
 import SuperAlert from "react-native-super-alert";
+
+import Spinner from 'react-native-loading-spinner-overlay';
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default function RegisterScreen({navigation}) {
   
@@ -15,7 +17,7 @@ export default function RegisterScreen({navigation}) {
   const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
   const [gander, setGander] = useState('')
-  
+    const [Loading, setLoading] =  useState(false);
   const data = [
     {label: 'Male'     },     {      label: 'Female'     },     {      label: 'Other'     }
     ];
@@ -31,7 +33,7 @@ export default function RegisterScreen({navigation}) {
       return
     }
    else{
-
+    setLoading(true);
       fetch(BASE_URL+'signup.php',
       {
           method: 'POST',
@@ -73,6 +75,14 @@ export default function RegisterScreen({navigation}) {
   return (
     <ImageBackground source={require('./img/background.png')} resizeMode="repeat"  style={styles.image}>
     <View style={styles.container}>
+    <Spinner
+          //visibility of Overlay Loading Spinner
+          visible={Loading}
+          //Text with the Spinner
+          textContent={'Loading...'}
+          //Text style of the Spinner Text
+          textStyle={styles.spinnerTextStyle}
+        />
     <View>
   <SuperAlert customStyle={customStyle}/> 
 </View>
@@ -212,5 +222,5 @@ const styles = StyleSheet.create({
   radiostyle:{flexDirection:'row',},
   radioboxStyle:{width:'32%',borderColor:'#000', marginHorizontal:'1%'}, 
   
-  
+  spinnerTextStyle:{color:'#fff'}
 });

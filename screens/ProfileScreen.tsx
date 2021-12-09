@@ -15,19 +15,15 @@ import {
 import { FontAwesome,  MaterialCommunityIcons
   } from "@expo/vector-icons";
 
-  import AuthContext from './helpers/AuthContext';
-
   import * as SecureStore from 'expo-secure-store';
   import { nameValidator } from './helpers/nameValidator'
   import RadioButtonRN from 'radio-buttons-react-native';
-  import Header from "./component/header";
+
   import SuperAlert from "react-native-super-alert";
   var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
   var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default function ProfileScreen({ navigation }) {
 
-
-  const { signOut } = useContext(AuthContext);
   const [state, setState] = useState({
     update: false,
     photo: "",
@@ -128,7 +124,6 @@ const customStyle = {
 }
     return (
       <View>
-        <Header/>
         <View>
   <SuperAlert customStyle={customStyle}/> 
 </View>
@@ -206,15 +201,7 @@ const customStyle = {
                  
                 
                 </TouchableOpacity>
-        <TouchableOpacity onPress={signOut} style={styles.logoutbtn}>
-        <Text style={styles.btntxt}>Log Out </Text>
-                  <MaterialCommunityIcons
-                    style={styles.navicon}
-                    name="logout"
-                    size={30}
-                  />
-                
-                </TouchableOpacity>
+       
 </View>
 
         </View>

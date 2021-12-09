@@ -36,7 +36,15 @@ const [textto, settextto] = useState('');
 
 
 
-useEffect(() => getData(), []);
+useEffect(() => {
+  const unsubscribe = navigation.addListener('focus', () => {
+    getData()
+  
+  });
+  
+  // Return the function to unsubscribe from the event so it gets removed on unmount
+  return unsubscribe;
+  }, [navigation]);
 
 const getData = async ()=> {
   let useremail = await SecureStore.getItemAsync('email');
@@ -258,13 +266,8 @@ const deletepostconfirm = async (key) => {
 
 <View style={styles.outer}>
         
-    <Header/>
-    <Drawer
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-        navigation={navigation}
-                              
-      />
+<Header  navigation={navigation}/>
+   
 </View>
       <View style={styles.screen}>
             <View  style={styles.categorieslisting}>     

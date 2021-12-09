@@ -55,6 +55,7 @@ await userprofileinfo.UserProfie(result).then((msg) => {
     .then((response) => response.json())
     .then((response)=>{
       if(response.startedchat === false){return;}
+      if(response.status === false){return;}
      // console.log(response.message)
       setData(response.message);
     })
@@ -71,7 +72,7 @@ fetchData();
      const scrollViewRef = useRef();
 
      
-const onSendPressed = () => {
+const onSendPressed = async() => {
 if( text == '' ){
 
   return;
@@ -87,10 +88,31 @@ fetch(BASE_URL+'sendmessagesingle.php',
    
 })
   .then((response) => response.json())
-    .then((response) => { console.log(response.message);  msgInput.current.clear();setText(''); })  
+    .then((response) => { console.log(response.message);  msgInput.current.clear();setText(''); 
+ sendPushNotification(response.expotoken,susername,text);
+  })  
   .catch((error) => console.error(error))
   .finally(() => setLoading(false));
 
+}
+async function sendPushNotification(expoPushToken, name, messageres) {
+  const message = {
+    to: expoPushToken,
+    sound: 'default',
+    title: name+' sent you a message',
+    body: text,
+    data: { someData: 'goes here' },
+  };
+
+  await fetch('https://exp.host/--/api/v2/push/send', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Accept-encoding': 'gzip, deflate',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
+  });
 }
 
 
@@ -120,6 +142,7 @@ const ItemView = ({item}) => {
     
     <View style={styles.image}>
     <View style={styles.container}>
+    
     <ScrollView showsHorizontalScrollIndicator={false} style={{marginTop:0,marginBottom:0 }}
      ref={scrollViewRef}
      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}

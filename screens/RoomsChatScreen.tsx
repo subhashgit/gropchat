@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useContext, useRef } from "react";
+import React, {useEffect, useState, useContext, useRef, useCallback  } from "react";
 import { StyleSheet, Button, View, Text, Image,TextInput,RefreshControl, ImageBackground,Dimensions, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
@@ -7,26 +7,26 @@ import * as SecureStore from 'expo-secure-store';
 var width = Dimensions.get('window').width; 
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
+
+import socketIo from "socket.io-client";
+let socket;
+const ENDPOINT = "http://192.168.1.2:3000/";
 export default function RoomsChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
-  const { groupid, groupname } = route.params;
-  const [state, setState] = useState();
+
+  const [id, setid] = useState("");
+  const [messages, setMessages] = useState([])
+  const [message, setMessage] = useState('')
+
+  const { groupid, groupname, user } = route.params;
+  const [state, setState] = useState(true);
   const [isLoading, setLoading] = useState(true);
-  const [text, setText] = useState('');
+
 const [data, setData] = useState([]);
 
 const [email, setemail] = useState('');
 const [username, setusername] = useState('');
-const userprofile = async() => {  
-  let result = await SecureStore.getItemAsync('token');
-await userprofileinfo.UserProfie(result).then((msg) => {
-  setemail(msg.email);
-  setusername(msg.username);
-}).catch((msg) => {
-  navigation.navigate('LoginScreen');
-})
-}
 
- userprofile();
+
 
   const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -36,37 +36,87 @@ await userprofileinfo.UserProfie(result).then((msg) => {
   const [track, setTrack] = useState('');
 
   useEffect(() => {
-    let repeat;
-    async function fetchData() {
+      // Do something when the screen is focused
+      function fetchData() {
+       
+     fetch(BASE_URL+'roomschat.php',
+    {
+        method: 'POST',
+        headers: new Headers({
+             'Content-Type': 'application/x-www-form-urlencoded', 
+    }),
+        body: JSON.stringify({ groupid: groupid, groupname: groupname })
+    })
+      .then((response) => response.json())
+       .then((json) => setMessages(json.message))
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+    
+  }
+    fetchData();
 
- await  fetch(BASE_URL+'roomschat.php',
-  {
-      method: 'POST',
-      headers: new Headers({
-           'Content-Type': 'application/x-www-form-urlencoded', 
-  }),
-      body: JSON.stringify({ groupid: groupid, groupname:groupname  })
+    }, []);
+  
+
+
+
+const msgInput = useRef();
+const scrollViewRef = useRef();
+
+
+useEffect(() => {
+  socket = socketIo(ENDPOINT, { transports: ['websocket'] } );
+
+  socket.on('connect', () => {
+    //  alert('Connected');
+      setid(socket.id);
+      socket.emit('room', {groupname});
   })
-    .then((response) => response.json())
-     .then((json) => setData(json.message))
-    .catch((error) => console.error(error))
-    .finally(() => setLoading(false));
-    repeat = setTimeout(fetchData, 1000);
-}
-fetchData();
-  }, []);
-     const msgInput = useRef();
-     const scrollViewRef = useRef();
+
+//  console.log(socket);
+  socket.emit('joined', {user},{groupname})
+
+  socket.on('welcome', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message);
+  })
+
+  socket.on('userJoined', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message);
+  })
+
+  socket.on('leave', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message)
+  })
+
+  return () => {
+      socket.emit('disconnect');
+      socket.off();
+  }
+}, [])
+
+useEffect(() => {
+  socket.on('sendMessage',(data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message, data.id);
+  })
+  return () => {
+      socket.off();
+  }
+}, [messages])
 
 const onSendPressed = () => {
-if( text == '' ){
+if( message == '' ){
 
   return;
 }
+
 fetch(BASE_URL+'sendmessage.php',
 {
     method: 'POST',
-    body: JSON.stringify({ message:text,groupid:groupid,email:email, username:username }),
+    body: JSON.stringify({ message:message,groupid:groupid,email:email, username:user }),
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -74,7 +124,13 @@ fetch(BASE_URL+'sendmessage.php',
    
 })
   .then((response) => response.json())
-    .then((response) => {  msgInput.current.clear();setText(''); })  
+    .then((response) => { 
+      socket.emit('message', { message, id, groupname });
+      msgInput.current.clear();
+     // alert(groupname);
+      setMessage('');
+  
+  })  
   .catch((error) => console.error(error))
   .finally(() => setLoading(false));
 
@@ -105,13 +161,14 @@ const onRefresh = React.useCallback(() => {
     
           <View style={styles.screen}>
   
-    {isLoading ? <ActivityIndicator/> : (
+
+          {isLoading ? <ActivityIndicator/> : (
                 <FlatList
-                  data={data}
+                  data={messages}
                   keyExtractor={({ id }, index) => id}
                   renderItem={({ item }) => (
               <View  style={styles.listoption}>
-              <Text style={styles.usenametex}>{item.userdataname}</Text>
+              <Text style={styles.usenametex}>{item.user}</Text>
               <Text style={styles.msgdatetime}>{item.msgtimedate}</Text>
               
               <Text style={styles.listtxt}>{item.message}</Text>
@@ -122,13 +179,21 @@ const onRefresh = React.useCallback(() => {
             )}
                 />
               )}
+              {/*
+          {messages.map((item, i) =>
+   <View>  
+    <Text>{item.message} </Text>
+    
+    </View>
+    )}  
+    */}
 </View>
  
          </ScrollView>
          <View style={styles.viewposrtsend}>
          <TextInput
       style={{width:width-80,  borderColor: 'gray', padding:5, borderWidth: 1 }}
-   onChangeText={text => setText(text)}
+   onChangeText={message => setMessage(message)}
    ref={msgInput}
       placeholder={'Type Message ...'} 
     />

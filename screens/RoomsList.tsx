@@ -6,12 +6,25 @@ import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Drawer from "./component/drawer";
 import Header from "./component/header";
+
+var userprofileinfo = require('./helpers/Authtoken.tsx');
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default  function RoomsList({ navigation }) {
 
   const [isLoading, setLoading] = useState(true);
 const [data, setData] = useState([]);
-
+const [user, setuser] = useState('');
+useEffect(()=>{
+  const userprofile = async() => {  
+  let result = await SecureStore.getItemAsync('token');
+  await userprofileinfo.UserProfie(result).then((msg) => {
+    setuser(msg.username);
+  }).catch((msg) => {
+    navigation.navigate('LoginScreen');
+  })
+  }
+  userprofile();
+  },[]);
 
 useEffect(() => {
   fetch(BASE_URL+'groups.php')
@@ -49,7 +62,8 @@ useEffect(() => {
            
                <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('RoomsChatScreen',{
             groupid: item.id,
-            groupname: item.groupname
+            groupname: item.groupname,
+            user:user
           })}>
                
               <View  style={styles.listoption}>
