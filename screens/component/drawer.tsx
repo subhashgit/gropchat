@@ -86,7 +86,7 @@ const onpressprofile = () =>{
                     <Text style={styles.naviconsubtxt}>Your profile </Text>
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.listnav}>
+                <TouchableOpacity onPress={() =>navigation.navigate('Feedback') } style={styles.listnav}>
                   <MaterialCommunityIcons
                     style={styles.navicon}
                     name="credit-card-outline"

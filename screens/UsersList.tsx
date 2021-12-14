@@ -18,6 +18,24 @@ export default  function UsersList({ navigation }) {
   const [cemail, setcemail] = useState('');
   const [loading, setLoading] = useState(true);
   const [truev, settruev] = useState('');
+  const [user, setuser] = useState('');
+  const [emailv, setemailv] = useState('');
+  const [tokent, settokent] = useState('');
+
+  useEffect(() => {
+    const userprofile = async() => {  
+      let result = await SecureStore.getItemAsync('token');
+      await userprofileinfo.UserProfie(result).then((msg) => {
+      setuser(msg.username);
+    
+    }).catch((msg) => {
+      navigation.navigate('LoginScreen');
+    })
+    }
+    
+     userprofile(); 
+    
+    }, []);
   
   const [dataSource, setDataSource] = useState([]);
 const [offset, setOffset] = useState(1);
@@ -75,7 +93,11 @@ setcemail(email);
               <TouchableOpacity style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
             userid: item.id,
             username: item.username,
-            gander: item.gander            
+            gander: item.gander,
+            user:user,
+            tokent:tokent,
+            emailv:emailv,
+            groupname:item.chatid             
           })}><Text style={{color:'#fff',textAlign:"center"}}>View Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity  style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
@@ -115,8 +137,9 @@ setcemail(email);
       
     <View style={styles.container}>
     <ScrollView 
-          style={{marginBottom:165}}
+          style={{marginBottom:175}}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}  
           onScroll={({nativeEvent}) => {
             if (isCloseToBottom(nativeEvent)) {
               getData();

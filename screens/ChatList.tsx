@@ -2,13 +2,29 @@ import React, {useEffect, useState, useContext } from "react";
 import { StyleSheet, Button, View, Text, Image,TextInput, ImageBackground, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
-import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons} from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
 import Drawer from "./component/drawer";
 import Header from "./component/header";
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default  function ChatList({ navigation }) {
+  const [user, setuser] = useState('');
+  const [tokent, settokent] = useState('');
+  useEffect(() => {
+    const userprofile = async() => {  
+      let result = await SecureStore.getItemAsync('token');
+      await userprofileinfo.UserProfie(result).then((msg) => {
+      setuser(msg.username);
+    
+    }).catch((msg) => {
+      navigation.navigate('LoginScreen');
+    })
+    }
+    
+     userprofile(); 
+    
+    }, []);
 
   const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {  
     const paddingToBottom = 20;
@@ -39,10 +55,12 @@ const getData = async ()=> {
   let email = await SecureStore.getItemAsync('email');
   let token = await SecureStore.getItemAsync('token');
   setcemail(email);
+  settokent(token);
+
   fetch(BASE_URL+'chatlist.php?page=',
   {
       method: 'POST',
-      body: JSON.stringify({email: email, token:token}),
+      body: JSON.stringify({email:email, token:token}),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -52,7 +70,7 @@ const getData = async ()=> {
      //Sending the currect offset with get request
      .then((response) => response.json())
      .then((responseJson) => {
-     
+      // console.log(responseJson.message);
        if(responseJson.message === null){setLoading(false);  return;}
        if(responseJson.status === null){ setnomessage(responseJson.message); return;}
      //  setOffset(offset + 1);
@@ -73,28 +91,29 @@ const getData = async ()=> {
   const [modalVisible, setModalVisible] = useState(false);
 
   const ItemView = ({item}) => {
-    const email = item.email;
-
+    const emailpo = item.useremail;
+    const status = item.status;
+    const msgemail = item.msgemail;
     return (
 <View style={{width:'100%'}}>
       <TouchableOpacity   activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
-        userid: item.id,
-        username:item.username,          
+        userid: item.userid,
+        username:item.username, 
+        user:user,
+        tokent:tokent,
+        emailv:cemail,
+        groupname:item.chattoken        
       })}>
-              <View  style={[styles.listoption, email == cemail ? styles.noneconta : null]}>  
-         
+        <View style={[styles.listoption, emailpo == cemail ? styles.noneconta : null,  status == 'unread' && msgemail != cemail ? styles.unreadmsg : null]}>    
+        {status == 'unread' && msgemail != cemail ?   
+        <Ionicons name="mail-unread-outline" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/> : status == 'unread' && msgemail == cemail ?   
+        <MaterialCommunityIcons name="eye-off-outline" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/> : 
+        <MaterialCommunityIcons name="read" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/>
+        }   
               <View style={{flexDirection:'row'}}>
-               <TouchableOpacity activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
-            userid: item.id,
-            username: item.username,
-            gander: item.gander            
-          })}>
-            <Text style={styles.icouser}>{item.username.charAt(0)}</Text>   
-           </TouchableOpacity>       
-              <Text style={styles.listtxt}>{item.username}<Text style={{fontSize:12}}>{"\n"}({item.gander})</Text></Text>
+              <Text style={styles.icouser}>{item.username.charAt(0)}</Text>    
+              <Text style={styles.listtxt}>{item.username}<Text style={{fontSize:12}}>{"\n"}{item.message}</Text></Text>
               </View>
-
-           
           </View>
           </TouchableOpacity>
 
@@ -197,13 +216,13 @@ const styles = StyleSheet.create({
   imglogo:{width:120,height:120,},
   listoption:{backgroundColor:'#fff',minWidth:'100%',marginVertical:5,paddingVertical:10,paddingHorizontal:20, flex:1,
   },
-  listtxt:{marginLeft:10,fontSize:22,},
+  listtxt:{marginLeft:10,fontSize:22,marginTop:0,},
   containerwrapper:{paddingTop:40,paddingBottom:10,backgroundColor:'#000',paddingHorizontal:25,},
   headicons:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},
   userfletter:{color:'#fff',height:25,width:25,lineHeight:23,borderRadius:50,textAlign:'center',borderColor:'#fff',
 borderWidth:1,fontSize:12,
 },
-icouser:{backgroundColor:'#000',height:50,width:50,color:'#fff',textAlign:'center',lineHeight:50,
+icouser:{backgroundColor:'#000',height:35,width:35,color:'#fff',textAlign:'center',lineHeight:32,
 borderRadius:50,marginRight:5,fontSize:22,
 },
 buttoncontainer:{flexDirection:'row',marginVertical:'5%',},
@@ -213,6 +232,7 @@ noneconta:{display:'none'},
 tabs:{position:'absolute',bottom:0, alignSelf:'center',width:'100%',borderTopColor:'#fff',borderTopWidth:1,zIndex:999,
 borderBottomColor:'#fff',borderBottomWidth:1},
 tab:{backgroundColor:'#000',width:'100%',textAlign:"center",paddingHorizontal:20,paddingVertical:15,},
+unreadmsg:{backgroundColor:'#fefefe',borderBottomWidth:2},
 });
 
 

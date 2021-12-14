@@ -1,98 +1,226 @@
-import React, {useEffect, useState, useContext } from "react";
-import { StyleSheet, TextInput,Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, {useEffect, useState, useContext, useRef, useCallback  } from "react";
+import { StyleSheet, Button, View, Text, Image,TextInput,RefreshControl, ImageBackground,Dimensions, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
+import AuthContext from './helpers/AuthContext'
+import { RootTabScreenProps } from '../types';
+import { FontAwesome } from "@expo/vector-icons";
+import * as SecureStore from 'expo-secure-store';
+var width = Dimensions.get('window').width; 
+var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+var userprofileinfo = require('./helpers/Authtoken.tsx');
 
 import socketIo from "socket.io-client";
 let socket;
+const ENDPOINT = "https://chatroom.naturetour.in";
+export default function Sample({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
 
-const ENDPOINT = "http://192.168.1.2:3000/";
-
-export default function Sample() {
-  const [user, setuser] = useState("Rame");
   const [id, setid] = useState("");
   const [messages, setMessages] = useState([])
   const [message, setMessage] = useState('')
 
-  const submitChatMessage = () => {
-      socket.emit('message', { message, id });
-      setMessage('');
+   let groupid ='5';
+   let groupname='Gang';
+   let user ='User';
+
+
+
+  const [state, setState] = useState(true);
+  const [isLoading, setLoading] = useState(true);
+
+const [data, setData] = useState([]);
+
+const [email, setemail] = useState('');
+const [username, setusername] = useState('');
+
+
+
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
   }
 
+
+  const [track, setTrack] = useState('');
+
   useEffect(() => {
-    socket = socketIo(ENDPOINT, { transports: ['websocket'] });
-
-    socket.on('connect', () => {
-        alert('Connected');
-        setid(socket.id);
-
+      // Do something when the screen is focused
+      function fetchData() {
+       
+     fetch(BASE_URL+'roomschat.php',
+    {
+        method: 'POST',
+        headers: new Headers({
+             'Content-Type': 'application/x-www-form-urlencoded', 
+    }),
+        body: JSON.stringify({ groupid: groupid, groupname: groupname })
     })
-    console.log(socket);
-    socket.emit('joined', { user })
+      .then((response) => response.json())
+       .then((json) => setMessages(json.message))
+      .catch((error) => console.error(error))
+      .finally(() => setLoading(false));
+    
+  }
+    fetchData();
 
-    socket.on('welcome', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message);
-    })
+    }, []);
+const msgInput = useRef();
+const scrollViewRef = useRef();
 
-    socket.on('userJoined', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message);
-    })
 
-    socket.on('leave', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message)
-    })
+useEffect(() => {
+  socket = socketIo("https://chatroom.naturetour.in");
+   socket.on("connect", () => {
+    alert();
+});
 
-    return () => {
-        socket.emit('disconnect');
-        socket.off();
-    }
+  socket.on("error", (error) => {
+    console.log(error);
+  });
+
+  socket.emit('joined', {user},{groupname})
+
+  socket.on('welcome', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message);
+  })
+
+  socket.on('userJoined', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message);
+  })
+
+  socket.on('leave', (data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message)
+  })
+
+  return () => {
+      socket.emit('disconnect');
+      socket.off();
+  }
 }, [])
 
 useEffect(() => {
-    socket.on('sendMessage', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message, data.id);
-    })
-    return () => {
-        socket.off();
-    }
+  socket.on('chat messag',(data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message, data.id);
+  })
+  return () => {
+      socket.off();
+  }
 }, [messages])
 
-return (
-    <View style={styles.container}>
-      
-     
+const onSendPressed = () => {
+  socket.emit('chat messag', { message, id, groupname });
+if( message == '' ){
 
-      <TextInput
-        label="Name"
-        returnKeyType="next"
-        value={message}
-        onChangeText={(text) => setMessage(text)}
-        style={styles.textbox}
-      />
-      <TouchableOpacity activeOpacity={0.7} 
-                         style={{ borderWidth: 2,borderColor:'#000',  top: 0}}
-                    onPress={submitChatMessage} >
-                      <Text>Submit</Text>
-  </TouchableOpacity>       
-  {messages.map((item, i) =>
+  return;
+}
+
+fetch(BASE_URL+'sendmessage.php',
+{
+    method: 'POST',
+    body: JSON.stringify({ message:message,groupid:groupid,email:email, username:user }),
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+  },
+   
+})
+  .then((response) => response.json())
+    .then((response) => { 
+   
+      msgInput.current.clear();
+     // alert(groupname);
+      setMessage('');
+  
+  })  
+  .catch((error) => console.error(error))
+  .finally(() => setLoading(false));
+
+}
+
+
+const [refreshing, setRefreshing] = React.useState(false);
+
+const [offset, setOffset] = useState(1);
+const onRefresh = React.useCallback(() => {
+   setRefreshing(true);
+  wait(2000).then(() => setRefreshing(false));
+}, []);
+
+  return (
+    
+    <View style={styles.image}>
+    <View style={styles.container}>
+    <ScrollView showsHorizontalScrollIndicator={false} style={{marginTop:0,marginBottom:0 }}
+     ref={scrollViewRef}
+     onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}
+     refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />}
+    >   
+    
+          <View style={styles.screen}>
+  
+
+          {isLoading ? <ActivityIndicator/> : (
+                <FlatList
+                  data={messages}
+                  keyExtractor={({ id }, index) => id}
+                  renderItem={({ item }) => (
+              <View  style={styles.listoption}>
+              <Text style={styles.usenametex}>{item.user}</Text>
+              <Text style={styles.msgdatetime}>{item.msgtimedate}</Text>
+              
+              <Text style={styles.listtxt}>{item.message}</Text>
+              
+            </View>
+           
+           
+            )}
+                />
+              )}
+              {/*
+          {messages.map((item, i) =>
    <View>  
     <Text>{item.message} </Text>
     
     </View>
-    )} 
+    )}  
+    */}
+</View>
  
-  </View>
-  );
+         </ScrollView>
+         <View style={styles.viewposrtsend}>
+         <TextInput
+      style={{width:width-80,  borderColor: 'gray', padding:5, borderWidth: 1 }}
+   onChangeText={message => setMessage(message)}
+   ref={msgInput}
+      placeholder={'Type Message ...'} 
+    />
+     <TouchableOpacity style={{textAlign:'center', color:'#fff', backgroundColor:'#000'}} activeOpacity={.8} 
+        onPress={onSendPressed}  >
+             <FontAwesome
+            style={styles.sendbutton}
+            name={'send'} color={'#fff'}
+          />
+                  </TouchableOpacity>
+                  </View>
+     </View>
 
-};
+    </View>
+  
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
-    height: 400,
-   marginTop:120,
-    backgroundColor: '#F5FCFF',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+
   title: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -102,5 +230,29 @@ const styles = StyleSheet.create({
     height: 1,
     width: '80%',
   },
-  textbox:{height:50,borderColor:'#000',borderWidth:2,marginTop:50,}
+  buttonStyle: {
+    width: '100%',
+    marginVertical: 10,
+    paddingVertical: 15,borderWidth:2,borderColor:'#000',backgroundColor:'#000',
+  },
+  btntxt: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color:'#fff',
+    lineHeight: 26,
+    textAlign:'center',
+  },
+  image: {
+    flex: 1,
+    
+  },
+  imglogo:{width:120,height:120,},
+  textwelcome:{fontSize:30,marginTop:50,},
+  textdesc:{fontSize:14,marginTop:0,marginBottom:10,},
+  listoption:{backgroundColor:'#fff',minWidth:'90%',marginVertical:5,paddingVertical:5,paddingHorizontal:5, borderRadius:8},
+  listtxt:{marginLeft:0,},
+  usenametex:{width:'100%',color:'#aaa',fontSize:12},
+  sendbutton:{paddingVertical:15,paddingHorizontal:20,fontSize:25},
+  viewposrtsend:{flexDirection:'row',marginBottom:5,},
+  msgdatetime:{position:'absolute', right:5,top:5,fontSize:9,color:'#ccc'},
 });

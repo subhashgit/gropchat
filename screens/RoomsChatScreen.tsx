@@ -10,7 +10,7 @@ var userprofileinfo = require('./helpers/Authtoken.tsx');
 
 import socketIo from "socket.io-client";
 let socket;
-const ENDPOINT = "http://192.168.1.2:3000/";
+const ENDPOINT = "https://chatroom.naturetour.in";
 export default function RoomsChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
 
   const [id, setid] = useState("");
@@ -35,9 +35,7 @@ const [username, setusername] = useState('');
 
   const [track, setTrack] = useState('');
 
-  useEffect(() => {
-      // Do something when the screen is focused
-      function fetchData() {
+      const  fetchData = () => {
        
      fetch(BASE_URL+'roomschat.php',
     {
@@ -53,11 +51,15 @@ const [username, setusername] = useState('');
       .finally(() => setLoading(false));
     
   }
-    fetchData();
-
-    }, []);
+  useEffect(() => fetchData(), []);
   
-
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => 
+      <FontAwesome   name={'repeat'} size={25} color={'#000'} onPress={()=>fetchData()}  />
+      ,
+    });
+  }, [navigation]);
 
 
 const msgInput = useRef();
@@ -65,7 +67,7 @@ const scrollViewRef = useRef();
 
 
 useEffect(() => {
-  socket = socketIo(ENDPOINT, { transports: ['websocket'] } );
+  socket = socketIo.connect(ENDPOINT, { transports: ['websocket'] } );
 
   socket.on('connect', () => {
     //  alert('Connected');
@@ -149,7 +151,7 @@ const onRefresh = React.useCallback(() => {
     
     <View style={styles.image}>
     <View style={styles.container}>
-    <ScrollView showsHorizontalScrollIndicator={false} style={{marginTop:0,marginBottom:0 }}
+    <ScrollView showsHorizontalScrollIndicator={false}   showsVerticalScrollIndicator={false}  style={{marginTop:0,marginBottom:0 }}
      ref={scrollViewRef}
      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: false })}
      refreshControl={

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Chatroom",
     "slug": "Chatroom",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -22,11 +22,12 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": 3,
+      "versionCode": 4,
       "package": "com.subhashcool.Chatroom"
     },
     "web": {

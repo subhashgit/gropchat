@@ -30,7 +30,7 @@ export default function UserProfileScreen({ navigation,route }) {
         </View>
         
   
-        <TouchableOpacity onPress={()=> navigation.navigate('SingleChatScreen',{
+        {<TouchableOpacity onPress={()=> navigation.navigate('SingleChatScreen',{
             userid: userid,
             username:username,          
           })} style={styles.logoutbtn}>
@@ -42,6 +42,7 @@ export default function UserProfileScreen({ navigation,route }) {
                   />
                 
                 </TouchableOpacity>
+                }
       </View>
     )
   

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "144114911059",
+    "project_id": "smartchatpro",
+    "storage_bucket": "smartchatpro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144114911059:android:ae41a4a315e5f0918843a6",
+        "android_client_info": {
+          "package_name": "com.subhashcool.Chatroom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144114911059-6i867tard6m9tugfe1b0satvur6fusos.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDECTRE2EnoHL3HDLSoKe6S_A5JYDHyg7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144114911059-6i867tard6m9tugfe1b0satvur6fusos.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

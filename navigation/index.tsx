@@ -29,8 +29,10 @@ import MyPosts from '../screens/MyPosts';
 import UserProfileScreen from '../screens/UserProfileScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AddImage from '../screens/AddImage';
-import AddQuotes from '../screens/AddQuotes';
+import Feedback from '../screens/Feedback';
 import SearchScreen from '../screens/SearchScreen';
+import Notification from '../screens/Notification';
+
 import Sample from '../screens/Sample';
 
 
@@ -179,11 +181,8 @@ function RootNavigator() {
       <Stack.Screen name="UserProfileScreen" component={UserProfileScreen} options={({ route }) => ({ title: route.params.username })} />
       <Stack.Screen name="RoomsList" component={RoomsList}  options={{ headerShown: true, title:'Chat Rooms' }} />
       <Stack.Screen name="AddImage" component={AddImage}  options={{ headerShown: true, title:'Upload Image' }} />
-      <Stack.Screen name="AddQuotes" component={AddQuotes}  options={{ headerShown: true, title:'Add Quotes' }} />
-
-      
-      
-      
+      <Stack.Screen name="Feedback" component={Feedback}  options={{ headerShown: true, title:'Feedback & Suggetions' }} />
+      <Stack.Screen name="Notification" component={Notification}  options={{ headerShown: true, title:'Notifications' }} />      
     </Stack.Navigator>
     </AuthContext.Provider>
   );
@@ -218,18 +217,18 @@ function BottomTabNavigator() {
         }}
       />
          <BottomTab.Screen
-        name="SearchScreen"
+        name="Users"
         component={SearchScreen}
         options={{
           headerShown: false,
-          title: 'Search',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search1" color={color} />
+          title: 'Users',
+          tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
         }}
       />
   
        <BottomTab.Screen
-        name="CreatePost"
-        component={CreatePost}
+        name="AddImage"
+        component={AddImage}
         options={{
           headerShown: false,
           title: 'New Post',
@@ -242,7 +241,9 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'Chat',
-          tabBarIcon: ({ color }) => <TabBarIcon name="addusergroup" color={color} />
+          tabBarBadge: '',
+          tabBarIcon: ({ color }) => <TabBarIcon name="message1" color={color} />
+          
         }}
       />
         <BottomTab.Screen
@@ -254,7 +255,7 @@ function BottomTabNavigator() {
           tabBarIcon: ({ color }) => <TabBarIcon name="picture" color={color} />
         }}
       />
-      
+ 
       
        
      

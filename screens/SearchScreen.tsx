@@ -14,7 +14,23 @@ export default  function UsersList({ navigation }) {
     const paddingToBottom = 20;
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
   };
-
+  const [user, setuser] = useState('');
+  useEffect(() => {
+    const userprofile = async() => {  
+      let result = await SecureStore.getItemAsync('token');
+    await userprofileinfo.UserProfie(result).then((msg) => {
+      //setemail(msg.email);
+      setuser(msg.username);
+      //settoken(result);
+    
+    }).catch((msg) => {
+      navigation.navigate('LoginScreen');
+    })
+    }
+    
+     userprofile(); 
+    
+    }, []);
   const [cemail, setcemail] = useState('');
   const [loading, setLoading] = useState(true);
   const [truev, settruev] = useState('');
@@ -25,6 +41,7 @@ const [offset, setOffset] = useState(1);
 useEffect(() => getData(), []);
 
 const getData = async ()=> {
+
   let email = await SecureStore.getItemAsync('email');
   let token = await SecureStore.getItemAsync('token');
 setcemail(email);
@@ -41,8 +58,9 @@ setcemail(email);
      //Sending the currect offset with get request
      .then((response) => response.json())
      .then((responseJson) => {
-
+      
        if(responseJson.message === null){setLoading(false); return;}
+       if(responseJson.status === false){setLoading(false); return;}
        setOffset(offset + 1);
        setDataSource([...dataSource, ...responseJson.message]);
        setLoading(false);
@@ -54,11 +72,12 @@ setcemail(email);
 
 
 }
-  
 
 
   const [modalVisible, setModalVisible] = useState(false);
 
+
+  
   const ItemView = ({item}) => {
     const email = item.email;
 
@@ -75,12 +94,14 @@ setcemail(email);
               <TouchableOpacity style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
             userid: item.id,
             username: item.username,
-            gander: item.gander            
+            gander: item.gander
+
           })}><Text style={{color:'#fff',textAlign:"center"}}>View Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity  style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
             userid: item.id,
-            username:item.username,          
+            username:item.username,
+            user:user          
           })}><Text  style={{color:'#fff',textAlign:"center"}}>Send Message</Text>
           </TouchableOpacity>
             </View>
@@ -115,8 +136,9 @@ setcemail(email);
       
     <View style={styles.container}>
     <ScrollView 
-          style={{marginBottom:165}}
+          style={{marginBottom:168}}
           showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}  
           onScroll={({nativeEvent}) => {
             if (isCloseToBottom(nativeEvent)) {
               getData();

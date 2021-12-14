@@ -27,7 +27,7 @@ const [modalVisible, setModalVisible] = useState(false);
 <View  style={styles.containerwrapperinr}>
       <View style={styles.headicons}>
           <TouchableOpacity  onPress={() => {
-                setModalVisible(true);
+                setModalVisible(!modalVisible);
               }}> 
           <MaterialCommunityIcons  size={25}
             color={'#fff'}
@@ -38,7 +38,7 @@ const [modalVisible, setModalVisible] = useState(false);
       <Image source={require('../img/logowhite.png')} style={styles.imglogo}/>  
         </View>   
         <View style={styles.headiconsflend}>    
-        <TouchableOpacity  onPress={() => navigation.navigate('SearchScreen')}>
+        <TouchableOpacity  onPress={() => navigation.navigate('Notification')}>
           <Text style={styles.iconsheader}>
             <MaterialIcons
             size={25}
