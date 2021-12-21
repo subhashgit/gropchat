@@ -4,9 +4,6 @@ import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
-import Drawer from "./component/drawer";
-import Header from "./component/header";
-
 var userprofileinfo = require('./helpers/Authtoken.tsx');
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default  function RoomsList({ navigation }) {

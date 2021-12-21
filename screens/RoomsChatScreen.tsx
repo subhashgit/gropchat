@@ -7,12 +7,13 @@ import * as SecureStore from 'expo-secure-store';
 var width = Dimensions.get('window').width; 
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
+import { useFocusEffect } from '@react-navigation/native';
 
 import socketIo from "socket.io-client";
-let socket;
-const ENDPOINT = "https://chatroom.naturetour.in";
+let socket; 
+const ENDPOINT = "http://74.208.206.201:3000";
+//const ENDPOINT = "http://192.168.1.2:3000";
 export default function RoomsChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
-
   const [id, setid] = useState("");
   const [messages, setMessages] = useState([])
   const [message, setMessage] = useState('')
@@ -31,6 +32,59 @@ const [username, setusername] = useState('');
   const wait = (timeout) => {
     return new Promise(resolve => setTimeout(resolve, timeout));
   }
+
+  
+useFocusEffect(
+  React.useCallback(() => {
+  
+    socket = socketIo.connect(ENDPOINT, { transports: ['websocket'],  } );
+
+  
+    socket.on('connect', () => {
+      //  alert('Connected');
+        setid(socket.id);
+          })
+       //   socket.emit('room', {groupname});
+  //  console.log(socket);
+    socket.emit('joined', {user},{groupname})
+  
+    socket.on('welcome', (data) => {
+        setMessages([...messages, data]);
+        console.log(data.user, data.message);
+    })
+  
+    socket.on('userJoined', (data) => {
+        setMessages([...messages, data]);
+        console.log(data.user, data.message);
+    })
+  
+    socket.on('leave', (data) => {
+        setMessages([...messages, data]);
+        console.log(data.user, data.message)
+    })
+  
+    return () =>  {
+      socket.disconnect(true);
+      socket.off();
+
+    }
+
+  }, [])
+);
+
+
+
+useEffect(() => {
+  socket.on('sendMessage',(data) => {
+      setMessages([...messages, data]);
+      console.log(data.user, data.message, data.id);
+  })
+  return () => {
+  // socket.disconnect();
+    socket.off();
+  }
+}, [messages])
+
 
 
   const [track, setTrack] = useState('');
@@ -66,49 +120,6 @@ const msgInput = useRef();
 const scrollViewRef = useRef();
 
 
-useEffect(() => {
-  socket = socketIo.connect(ENDPOINT, { transports: ['websocket'] } );
-
-  socket.on('connect', () => {
-    //  alert('Connected');
-      setid(socket.id);
-      socket.emit('room', {groupname});
-  })
-
-//  console.log(socket);
-  socket.emit('joined', {user},{groupname})
-
-  socket.on('welcome', (data) => {
-      setMessages([...messages, data]);
-      console.log(data.user, data.message);
-  })
-
-  socket.on('userJoined', (data) => {
-      setMessages([...messages, data]);
-      console.log(data.user, data.message);
-  })
-
-  socket.on('leave', (data) => {
-      setMessages([...messages, data]);
-      console.log(data.user, data.message)
-  })
-
-  return () => {
-      socket.emit('disconnect');
-      socket.off();
-  }
-}, [])
-
-useEffect(() => {
-  socket.on('sendMessage',(data) => {
-      setMessages([...messages, data]);
-      console.log(data.user, data.message, data.id);
-  })
-  return () => {
-      socket.off();
-  }
-}, [messages])
-
 const onSendPressed = () => {
 if( message == '' ){
 
@@ -127,7 +138,7 @@ fetch(BASE_URL+'sendmessage.php',
 })
   .then((response) => response.json())
     .then((response) => { 
-      socket.emit('message', { message, id, groupname });
+      socket.emit('message', { message, id, groupname, user });
       msgInput.current.clear();
      // alert(groupname);
       setMessage('');

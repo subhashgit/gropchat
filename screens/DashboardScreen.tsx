@@ -178,10 +178,16 @@ const onShare = async (sharetext) => {
  const ItemView = ({item}) => {
     return (
        <View  style={styles.postlist}>
-          <View style={styles.namedes}>
+          
+            <TouchableOpacity style={styles.namedes} onPress={()=> navigation.navigate('UserProfileScreen',{
+            useremail: item.useremail,
+            username: item.username,
+          })}>
           <Text style={styles.icouser}>{item.username.charAt(0)}</Text>
             <Text  style={{color:'#000'}}>{item.username}</Text>
-          </View>
+          </TouchableOpacity>
+
+
           {item.url ?  <View>
             <Image source={{  uri: item.url,}}  width={width}  /> 
             <View style={styles.underpostfooter}>
@@ -218,7 +224,7 @@ const onShare = async (sharetext) => {
           }}>
                     <FontAwesome
                       style={{ fontSize: 22, paddingTop: 5, paddingRight: 15, flexDirection: "row" }}
-                      name="send-o"
+                       name="send-o"
                     />
                     </TouchableOpacity>
                 </View>
@@ -275,7 +281,9 @@ const onShare = async (sharetext) => {
               refreshing={refreshing}
               onRefresh={onRefresh}
             />}
-           showsHorizontalScrollIndicator={false} onScroll={({nativeEvent}) => {
+           showsHorizontalScrollIndicator={false} 
+           showsVerticalScrollIndicator={false}
+           onScroll={({nativeEvent}) => {
       if (isCloseToBottom(nativeEvent)) {
         getData();
       }

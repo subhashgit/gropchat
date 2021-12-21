@@ -2,24 +2,26 @@ import React, {useEffect, useState, useContext, useRef } from "react";
 import { StyleSheet, Button, View, Text, Image,TextInput,RefreshControl, ImageBackground,Dimensions, TouchableOpacity,ActivityIndicator, FlatList, SafeAreaView, ScrollView } from 'react-native';
 import AuthContext from './helpers/AuthContext'
 import { RootTabScreenProps } from '../types';
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import * as SecureStore from 'expo-secure-store';
+import { useFocusEffect } from '@react-navigation/native';
 var width = Dimensions.get('window').width; 
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
 import socketIo from "socket.io-client";
-let socket;
-const ENDPOINT = "https://chatroom.naturetour.in";
 
+let socket;
+const ENDPOINT = "http://74.208.206.201:3000";
+//const ENDPOINT = "http://192.168.1.2:3000";
 export default function SingleChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
   
   const [id, setid] = useState("");
   const [messages, setMessages] = useState([])
   const [message, setMessage] = useState('')
-  const { userid, username,user, groupname } = route.params;
+  const { userid, username, groupname,user  } = route.params;
   const [state, setState] = useState();
   const [isLoading, setLoading] = useState(true);
-const [data, setData] = useState([]);
+  const [data, setData] = useState([]);
 
 const [email, setemail] = useState('');
 //const [user, setuser] = useState('');
@@ -80,48 +82,52 @@ useEffect(() => getData(), []);
 
 
   const [track, setTrack] = useState('');
-  const delay = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 
-  useEffect(() => {
+  useFocusEffect(
+    React.useCallback(() => {
+     
+      socket = socketIo.connect(ENDPOINT, { transports: ['websocket'], 'reconnection': true,  } );
+      socket.on('connect', () => {
+        //  alert('Connected');
+          setid(socket.id);
+    //      socket.emit('room', {groupname});
+   
+      })
     
-    socket = socketIo(ENDPOINT, { transports: ['websocket'] } );
-    socket.on('connect',  async() => {
-      await delay(1000);
-       setid(socket.id);
-        socket.emit('room', {groupname});
-      
-    })
-  
-  //  console.log(socket);
-     socket.emit('joined', {user},{groupname})
-  
-    socket.on('welcome', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message);
-    })
-  
-    socket.on('userJoined', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message);
-    })
-  
-    socket.on('leave', (data) => {
-        setMessages([...messages, data]);
-        console.log(data.user, data.message)
-    })
-  
-    return () => {
-        socket.emit('disconnect');
+    //  console.log(socket);
+      socket.emit('joined', {user},{groupname},{userid})
+    
+      socket.on('welcome', (data) => {
+          setMessages([...messages, data]);
+          console.log(data.user, data.message);
+      })
+    
+      socket.on('userJoined', (data) => {
+          setMessages([...messages, data]);
+          console.log(data.user, data.message);
+      })
+    
+      socket.on('leave', (data) => {
+          setMessages([...messages, data]);
+          console.log(data.user, data.message)
+      })
+    
+      return () =>  {
+        socket.disconnect(true);
         socket.off();
-    }
-  }, [])
   
+      }
+  
+    }, [])
+  );
+  
+    
   useEffect(() => {
     
-    socket.on('sendMessage',(data) => {
+    socket.on('sendprivateMessage',(data) => {
         setMessages([...messages, data]);
-        console.log(data.user, data.message, data.id);
+        console.log(data.user, data.message, data.id,   );
     })
     return () => {
         socket.off();
@@ -150,10 +156,13 @@ fetch(BASE_URL+'sendmessagesingle.php',
 })
   .then((response) => response.json())
     .then((response) => {
-    socket.emit('message', { message, id, groupname });
-    msgInput.current.clear();setMessage(''); 
 
- sendPushNotification(response.expotoken,user,message);
+        
+    socket.emit('privatemessage', { message, id, groupname, user, userid });
+    msgInput.current.clear();setMessage(''); 
+      let extojk = response.expotoken;
+ sendPushNotification(extojk,user,message);
+// console.log(extojk);
   })  
   .catch((error) => console.error(error))
   .finally(() => setLoading(false));
@@ -192,7 +201,12 @@ const onRefresh = React.useCallback(() => {
 React.useLayoutEffect(() => {
   navigation.setOptions({
     headerRight: () => 
-    <FontAwesome   name={'repeat'} size={25} color={'#000'} onPress={()=>getData()}  />
+    <AntDesign   name={'user'} size={25} color={'#000'}  onPress={()=> navigation.navigate('UserProfileScreen',{
+      userid: userid,
+      username:username 
+
+    })
+  }  />
     ,
   });
 }, [navigation]);
@@ -201,14 +215,17 @@ React.useLayoutEffect(() => {
 const ItemView = ({item}) => {
 
 const messageemail =  item.messageemail;
-
+const messageid =  item.userid;
  return (
 
 <View  style={styles.msgcommmsg}>
-<View  style={[styles.listoption, messageemail == email ? styles.mymsg :  styles.othermsg]}>
-    <Text style={[styles.usenametex, messageemail == email ? styles.mymsgname :  styles.othermsgname]} >{messageemail == email ? <Text style={styles.namecla}>you</Text> : <Text style={styles.namecla}>{item.user}</Text>}</Text>
+<View  style={[styles.listoption, messageemail == email || messageid == userid ? styles.mymsg :  styles.othermsg]}>
+    <Text style={[styles.usenametex, messageemail == email || messageid == userid ? styles.mymsgname :  styles.othermsgname]} >
+        {messageemail == email || messageid == userid ? <Text style={styles.namecla}>you</Text> : 
+        <Text style={styles.namecla}>{item.user}</Text>}
+      </Text>
     <Text style={styles.msgdatetime}>{item.msgtimedate}</Text>
-    <Text style={[styles.listtxt, messageemail == email ? styles.mymsgtxt :  styles.othermsgtxt]} >{item.message}</Text>
+    <Text style={[styles.listtxt, messageemail == email || messageid == userid ? styles.mymsgtxt :  styles.othermsgtxt]} >{item.message}</Text>
   </View>
 </View>
   )};

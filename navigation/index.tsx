@@ -241,7 +241,7 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           title: 'Chat',
-          tabBarBadge: '',
+         // tabBarBadge: '',
           tabBarIcon: ({ color }) => <TabBarIcon name="message1" color={color} />
           
         }}

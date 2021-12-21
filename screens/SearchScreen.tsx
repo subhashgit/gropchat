@@ -94,14 +94,13 @@ setcemail(email);
               <TouchableOpacity style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('UserProfileScreen',{
             userid: item.id,
             username: item.username,
-            gander: item.gander
-
           })}><Text style={{color:'#fff',textAlign:"center"}}>View Profile</Text>
           </TouchableOpacity>
           <TouchableOpacity  style={styles.vsprof} activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
             userid: item.id,
             username:item.username,
-            user:user          
+            user:user,
+            groupname:item.id             
           })}><Text  style={{color:'#fff',textAlign:"center"}}>Send Message</Text>
           </TouchableOpacity>
             </View>

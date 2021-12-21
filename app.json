@@ -2,11 +2,24 @@
   "expo": {
     "name": "Chatroom",
     "slug": "Chatroom",
-    "version": "3.1.0",
+    "version": "3.3.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#000000",
+          "sounds": [
+            "./assets/notification-sound.wav",
+            "./assets/notification-sound.wav"
+          ]
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -23,11 +36,12 @@
     },
     "android": {
       "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": 4,
+      "versionCode": 8,
       "package": "com.subhashcool.Chatroom"
     },
     "web": {

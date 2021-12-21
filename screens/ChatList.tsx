@@ -11,12 +11,14 @@ var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default  function ChatList({ navigation }) {
   const [user, setuser] = useState('');
   const [tokent, settokent] = useState('');
+  const [uemail, setuemail] = useState('');
+  
   useEffect(() => {
     const userprofile = async() => {  
       let result = await SecureStore.getItemAsync('token');
       await userprofileinfo.UserProfie(result).then((msg) => {
       setuser(msg.username);
-    
+      setuemail(msg.email);
     }).catch((msg) => {
       navigation.navigate('LoginScreen');
     })
@@ -98,21 +100,19 @@ const getData = async ()=> {
 <View style={{width:'100%'}}>
       <TouchableOpacity   activeOpacity={.8} onPress={()=> navigation.navigate('SingleChatScreen',{
         userid: item.userid,
-        username:item.username, 
-        user:user,
-        tokent:tokent,
-        emailv:cemail,
-        groupname:item.chattoken        
+        username:item.username,
+        groupname:item.chatid,
+        user:user        
       })}>
         <View style={[styles.listoption, emailpo == cemail ? styles.noneconta : null,  status == 'unread' && msgemail != cemail ? styles.unreadmsg : null]}>    
         {status == 'unread' && msgemail != cemail ?   
-        <Ionicons name="mail-unread-outline" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/> : status == 'unread' && msgemail == cemail ?   
-        <MaterialCommunityIcons name="eye-off-outline" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/> : 
-        <MaterialCommunityIcons name="read" color={'#000'} size={20}   style={{position:"absolute",right:5,top:5,}}/>
+        <Text style={{position:"absolute",right:5,top:5,fontSize:10,color:'green'}}>New Message</Text> : status == 'unread' && msgemail == cemail ?   
+        <Text    style={{position:"absolute",right:5,top:5,fontSize:10,}}>Unseen</Text> : 
+        <Text    style={{position:"absolute",right:5,top:5,fontSize:10,}}>Seen</Text>
         }   
               <View style={{flexDirection:'row'}}>
               <Text style={styles.icouser}>{item.username.charAt(0)}</Text>    
-              <Text style={styles.listtxt}>{item.username}<Text style={{fontSize:12}}>{"\n"}{item.message}</Text></Text>
+              <Text style={[styles.listtxt, status == 'unread' && msgemail != cemail ? styles.unreadmsgnm : null]}>{item.username}<Text style={{fontSize:12}}>{"\n"}{item.message}</Text></Text>
               </View>
           </View>
           </TouchableOpacity>
@@ -232,7 +232,8 @@ noneconta:{display:'none'},
 tabs:{position:'absolute',bottom:0, alignSelf:'center',width:'100%',borderTopColor:'#fff',borderTopWidth:1,zIndex:999,
 borderBottomColor:'#fff',borderBottomWidth:1},
 tab:{backgroundColor:'#000',width:'100%',textAlign:"center",paddingHorizontal:20,paddingVertical:15,},
-unreadmsg:{backgroundColor:'#fefefe',borderBottomWidth:2},
+unreadmsg:{backgroundColor:'#fefefe',borderBottomWidth:2,borderBottomColor:'green'},
+unreadmsgnm:{fontWeight:'bold'}
 });
 
 

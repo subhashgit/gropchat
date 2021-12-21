@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import Spinner from 'react-native-loading-spinner-overlay';
 import SuperAlert from "react-native-super-alert";
 import Header from "./component/header";
+import MyPosts from './MyPosts';
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
 var width = Dimensions.get("window").width;
@@ -87,7 +88,9 @@ export default function AddImage({ navigation }) {
         setdescription('');
         setImage('');
         setbase('');
+        
         alert(response.message);
+        navigation.navigate('MyPosts');
       })  
       .catch((error) => console.error(error))
       .finally(() => setLoading(false));
@@ -124,11 +127,14 @@ export default function AddImage({ navigation }) {
       
     <TouchableOpacity onPress={pickImage} style={styles.buttonStyle}>
       {image ?       <ImageBackground source={{ uri: image }} resizeMode="contain"  style={{height:100,width:'100%'}}/>: 
-      <Ionicons
+     
+     <View><Ionicons
       size={105}
       style={{textAlign:'center'}}
       color={'#aaa'}
       name='image-outline'/>
+      <Text style={{textAlign:'center',color:'#555',paddingBottom:5,fontSize:20}}> Click to Upload Image </Text>
+      </View>
       }
 
        

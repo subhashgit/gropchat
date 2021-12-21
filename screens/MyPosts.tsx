@@ -10,6 +10,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing'; 
 import Image from 'react-native-scalable-image';
+import SuperAlert from "react-native-super-alert";
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 export default  function MyPosts({ navigation }) {
   
@@ -80,6 +81,18 @@ const getData = async ()=> {
       console.error(error);
     }); 
 };
+const customStyle = {
+  container: {
+    backgroundColor: '#ffffff',
+  },
+  buttonConfirm: {
+    backgroundColor: '#000',
+  },
+  title: {
+    color: '#000'
+  },
+
+}
 
 
 const deletepost = async (key) => {
@@ -119,6 +132,7 @@ const deletepostconfirm = async (key) => {
     
       if(responseJson.message === true){
        alert('deleted');
+       getData();
 
       }
       else{alert(responseJson.message)}
@@ -263,7 +277,7 @@ const deletepostconfirm = async (key) => {
   return (
  
     <View>
-
+   <SuperAlert customStyle={customStyle}/>
 <View style={styles.outer}>
         
 <Header  navigation={navigation}/>

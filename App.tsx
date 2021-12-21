@@ -19,7 +19,7 @@ const admob = async() =>{
   await AdMobInterstitial.setAdUnitID('ca-app-pub-3185366657620430/2304571503'); // Test ID, Replace with your-admob-unit-id
   await AdMobInterstitial.requestAdAsync({ servePersonalizedAds: true});
   await AdMobInterstitial.showAdAsync();
-  repeat = setTimeout(admob, 100000);    
+  repeat = setTimeout(admob, 300000);    
 }
   admob();
 

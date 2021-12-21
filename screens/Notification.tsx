@@ -91,7 +91,7 @@ fetch(BASE_URL+'notifications.php?page='+offset,
 
       <View style={styles.container}>
           
-          {emptxt ? <Text style={{textAlign:"center"}}> {emptxt}</Text> : null}
+        
           <ScrollView 
           style={{marginBottom:0}}
            refreshControl={
@@ -99,6 +99,7 @@ fetch(BASE_URL+'notifications.php?page='+offset,
               refreshing={refreshing}
               onRefresh={onRefresh}
             />}
+            showsVerticalScrollIndicator={false} 
            showsHorizontalScrollIndicator={false} onScroll={({nativeEvent}) => {
       if (isCloseToBottom(nativeEvent)) {
         getData();
@@ -106,6 +107,7 @@ fetch(BASE_URL+'notifications.php?page='+offset,
     }}
     scrollEventThrottle={400}
     >
+
           <SafeAreaView>
             <View>
                 <FlatList
@@ -120,7 +122,7 @@ fetch(BASE_URL+'notifications.php?page='+offset,
                 />
                 </View>
             </SafeAreaView>
-          
+            {emptxt ? <Text style={{textAlign:"center"}}> {emptxt}</Text> : null}          
           </ScrollView>
          
        
