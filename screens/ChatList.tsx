@@ -8,6 +8,7 @@ import Drawer from "./component/drawer";
 import Header from "./component/header";
 var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
 var userprofileinfo = require('./helpers/Authtoken.tsx');
+
 export default  function ChatList({ navigation }) {
   const [user, setuser] = useState('');
   const [tokent, settokent] = useState('');
@@ -72,7 +73,7 @@ const getData = async ()=> {
      //Sending the currect offset with get request
      .then((response) => response.json())
      .then((responseJson) => {
-      // console.log(responseJson.message);
+     //  console.log(responseJson.message);
        if(responseJson.message === null){setLoading(false);  return;}
        if(responseJson.status === null){ setnomessage(responseJson.message); return;}
      //  setOffset(offset + 1);

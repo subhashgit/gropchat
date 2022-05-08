@@ -11,7 +11,7 @@ var userprofileinfo = require('./helpers/Authtoken.tsx');
 import socketIo from "socket.io-client";
 
 let socket;
-const ENDPOINT = "http://74.208.206.201:3000";
+const ENDPOINT = "http://198.251.72.128:3000";
 //const ENDPOINT = "http://192.168.1.2:3000";
 export default function SingleChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
   
@@ -100,17 +100,17 @@ useEffect(() => getData(), []);
     
       socket.on('welcome', (data) => {
           setMessages([...messages, data]);
-          console.log(data.user, data.message);
+         // console.log(data.user, data.message);
       })
     
       socket.on('userJoined', (data) => {
           setMessages([...messages, data]);
-          console.log(data.user, data.message);
+        //  console.log(data.user, data.message);
       })
     
       socket.on('leave', (data) => {
           setMessages([...messages, data]);
-          console.log(data.user, data.message)
+         // console.log(data.user, data.message)
       })
     
       return () =>  {
@@ -127,7 +127,7 @@ useEffect(() => getData(), []);
     
     socket.on('sendprivateMessage',(data) => {
         setMessages([...messages, data]);
-        console.log(data.user, data.message, data.id,   );
+       // console.log(data.user, data.message, data.id,   );
     })
     return () => {
         socket.off();

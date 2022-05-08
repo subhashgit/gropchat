@@ -11,7 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import socketIo from "socket.io-client";
 let socket; 
-const ENDPOINT = "http://74.208.206.201:3000";
+const ENDPOINT = "http://198.251.72.128:3000";
 //const ENDPOINT = "http://192.168.1.2:3000";
 export default function RoomsChatScreen({ navigation, route }: RootTabScreenProps<'WelcomeScreen'>) {
   const [id, setid] = useState("");
@@ -50,17 +50,17 @@ useFocusEffect(
   
     socket.on('welcome', (data) => {
         setMessages([...messages, data]);
-        console.log(data.user, data.message);
+       // console.log(data.user, data.message);
     })
   
     socket.on('userJoined', (data) => {
         setMessages([...messages, data]);
-        console.log(data.user, data.message);
+       // console.log(data.user, data.message);
     })
   
     socket.on('leave', (data) => {
         setMessages([...messages, data]);
-        console.log(data.user, data.message)
+      //  console.log(data.user, data.message)
     })
   
     return () =>  {
@@ -77,7 +77,7 @@ useFocusEffect(
 useEffect(() => {
   socket.on('sendMessage',(data) => {
       setMessages([...messages, data]);
-      console.log(data.user, data.message, data.id);
+     // console.log(data.user, data.message, data.id);
   })
   return () => {
   // socket.disconnect();

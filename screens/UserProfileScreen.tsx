@@ -19,6 +19,7 @@ import { FontAwesome,  MaterialCommunityIcons, MaterialIcons
   import * as SecureStore from 'expo-secure-store';
   import SuperAlert from "react-native-super-alert";
   var BASE_URL = require('./helpers/ApiBaseUrl.tsx');
+  var userprofileinfo = require('./helpers/Authtoken.tsx');
 export default function UserProfileScreen({ navigation,route }) {
   const { userid, username, useremail } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,7 +42,7 @@ export default function UserProfileScreen({ navigation,route }) {
       navigation.navigate('LoginScreen');
     })
     }
-    
+
      userprofile(); 
     
     }, []);
@@ -68,11 +69,10 @@ const getsumuser = async() =>{
               setgander(responseJson.message.gander);
               setusername(responseJson.message.username);
               setuserid(responseJson.message.id);
+
           //  console.log(responseJson.message);
              }
-          
-          })
-      
+          })      
         }
 
 const onChange = async(selectedValu) =>{
@@ -120,15 +120,14 @@ const customStyle = {
         <View style={styles.cardContainer}>
         <Text style={styles.icouser}>{usernamef.charAt(0)}</Text>
        
-
-       
+    
          <Text style={styles.userNameText}>{usernamef}</Text>
             <Text style={styles.userCityText}>
                ({gander})
                 </Text>
         </View>
-        
-  
+
+        {uemail != useremail ? 
         <TouchableOpacity onPress={()=> navigation.navigate('SingleChatScreen',{
             userid: useridf,
             username:usernamef,
@@ -143,7 +142,8 @@ const customStyle = {
                     size={30}
                   />
                 
-                </TouchableOpacity>
+                </TouchableOpacity> : null }
+                {uemail != useremail ? 
             <View style={{backgroundColor:'#000',width:'90%',alignSelf:'center',alignItems:'center',paddingHorizontal:10,flexDirection:'row'}}>
            <MaterialIcons name="report" color={'#fff'} size={20}/>
                 <Picker
@@ -163,6 +163,7 @@ const customStyle = {
         <Picker.Item label="Hate this person" value="Hate this person" />
       </Picker>
       </View>
+    : null }
       </View>
     )
   
